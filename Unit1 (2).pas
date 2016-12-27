@@ -34,6 +34,7 @@ type
     _SaveTranslation: TButton;
     lbl4: TLabel;
     lbl5: TLabel;
+    harvestscrBuilder: TButton;
     chk1: TCheckBox;
     datUnpack: TButton;
     chk2: TCheckBox;
@@ -41,7 +42,6 @@ type
     btn1: TButton;
     btn3: TButton;
     btn4: TButton;
-    Button1: TButton;
     procedure decryptClick(Sender: TObject);
     procedure FormActivate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -66,7 +66,6 @@ type
     procedure btn1Click(Sender: TObject);
     procedure btn3Click(Sender: TObject);
     procedure btn4Click(Sender: TObject);
-    procedure Button1Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -170,15 +169,6 @@ begin
        goto a1;
      end;
 
-   // убираем комментарии у объекта ADULTMAGCU
-   pos1 := pos('ADULTMAGCU', OriginalString);
-   if pos1 <> 0 then
-    begin
-     OriginalString := Trim(OriginalString);
-     Delete(OriginalString, 1, 3); // убираем в начале {//
-     goto a1;
-    end;
-
    // Ищем BOX и всё что за ним это фраза для перевода
    pos1 := pos('"BOX', OriginalString);
    if pos1 <> 0 then
@@ -207,12 +197,8 @@ begin
         srus:=srus + str1; // Склеиваю уже русскую строку целиком
 
         srus:=Trim(srus);   // Обрезаем всю хрень
-        if BoxNum=1 then srus:=StringReplace(srus, '"BOX1', '"BOX4', [rfReplaceAll] ); // BOX1 слишком узкий квадрат
-        if BoxNum=2 then srus:=StringReplace(srus, '"BOX2', '"BOX4', [rfReplaceAll] ); // BOX2 слишком узкий квадрат, текст не влезат
-
-        // патчим строку с SCHLHL_LOCKER1_LTEXT на BOX4
-        //if (pos('SCHLHL_LOCKER1_LTEXT', OriginalString) <> 0) then
-
+        if BoxNum=1 then srus:=StringReplace(srus, '"BOX1', '"BOX3', [rfReplaceAll] ); // BOX1 слишком узкий квадрат
+        if BoxNum=2 then srus:=StringReplace(srus, '"BOX2', '"BOX3', [rfReplaceAll] ); // BOX2 слишком узкий квадрат, текст не влезат
 
         Writeln (frus, srus); // Пишем в русский скрипт HARVEST.SCR.RUS
 
@@ -241,13 +227,13 @@ begin
      srus := OriginalString; // Делаю копию оригинальной строки
      Delete (srus, off1, size1); // Удаляю английскую фразу
      Readln (ftablerus, UTFstr1);   // Читаю русскую фразу
-
      while (UTFstr1='') do
       Readln (ftablerus, UTFstr1);
 
-     ANSIstr1 := Trim(Utf8ToAnsi(UTFstr1));
-
-     while (ANSIstr1[1]='?') do Delete (ANSIstr1, 1, 1);
+     ANSIstr1 := Utf8ToAnsi(UTFstr1);
+     ANSIstr1 := trim (ANSIstr1);
+     while (ANSIstr1[1]='?') do
+      Delete (ANSIstr1, 1, 1);
 
      str1:=StringReplace(ANSIstr1, ' ', '_',[rfReplaceAll]);  // Меняю все пробелы на подчерки
      srus:=srus + str1;  // Склеиваю уже русскую строку целиком
@@ -336,14 +322,9 @@ begin
 end;
 
 
-function getDWORD(offset:LongInt; buf:PByteArray):LongInt ;
+function getDWORD(offset:LongInt;buf:PByteArray):LongInt ;
 begin
  Result:=buf[offset + 0] + 256*buf[offset + 1] + 256*256*buf[offset + 2] + 256*256*256*buf[offset + 3];
-end;
-
-function getWORD (offset:LongInt; buf:PByteArray):LongInt;
-begin
-  Result := buf[offset + 0] + 256*buf[offset + 1];
 end;
 
 Procedure FillFontArrayFromBuf;
@@ -444,20 +425,22 @@ if hpal <> 0 then
    end;
 end;
 
+
 procedure ReadInitFont (fontnum:Integer);
 var
   fname:string;
   i,j, sum, fsize:LongInt;
 begin
- if fontnum=0 then fname:='.\files\font\TEXTFONT.CFT';
- if fontnum=1 then fname:='.\files\font\TEXTFNT2.CFT';
- if fontnum=2 then fname:='.\files\font\MEDFONT1.CFT';
- if fontnum=3 then fname:='.\files\font\MEDFONT2.CFT';
- if fontnum=4 then fname:='.\files\font\HARVFONT.CFT';
- if fontnum=5 then fname:='.\files\font\HARVFNT2.CFT';
- if fontnum=6 then fname:='.\files\font\_SMALFONT.CFT';
- if fontnum=7 then fname:='.\files\font\FONTWT2.CFT';
- if fontnum=8 then fname:='.\files\font\TYPEFONT.CFT';
+  if fontnum=0 then fname:='.\files\font\TEXTFONT.CFT';
+  if fontnum=1 then fname:='.\files\font\TEXTFNT2.CFT';
+  if fontnum=2 then fname:='.\files\font\MEDFONT1.CFT';
+  if fontnum=3 then fname:='.\files\font\MEDFONT2.CFT';
+  if fontnum=4 then fname:='.\files\font\HARVFONT.CFT';
+  if fontnum=5 then fname:='.\files\font\HARVFNT2.CFT';
+  if fontnum=6 then fname:='.\files\font\_SMALFONT.CFT';
+  if fontnum=7 then fname:='.\files\font\FONTWT2.CFT';
+  if fontnum=8 then fname:='.\files\font\TYPEFONT.CFT';
+
 
 curFile:=fname;
 // грузим шрифт в память, в буфер
@@ -524,35 +507,6 @@ begin
   buf[off + 3]:=byte3;
 end;
 
-procedure writeDWORD (num, offset:LongInt; var buftmp:PByteArray);
-var
-  byte0, byte1, byte2, byte3:Byte;
-begin
- // Пишем смещение блока
-  BYTE3:=Trunc(num/(256*256*256));
-  BYTE2:=Trunc ((num - BYTE3 *256*256*256)/(256*256));
-  BYTE1:=Trunc ((num - BYTE2*256*256 - BYTE3*256*256*256)/(256));
-  BYTE0:=num - BYTE1*256 - BYTE2*256*256 - BYTE3*256*256*256;
-
-  buftmp[offset + 0]:=byte0;
-  buftmp[offset + 1]:=byte1;
-  buftmp[offset + 2]:=byte2;
-  buftmp[offset + 3]:=byte3;
-end;
-
-procedure writeWORD (num, offset:LongInt; var buftmp:PByteArray);
-var
-  byte0, byte1:Byte;
-begin
- // Пишем смещение блока
- BYTE1:=Trunc (num / 256);
- BYTE0:=num - BYTE1*256;
-
- buftmp[offset + 0]:=byte0;
- buftmp[offset + 1]:=byte1;
-end;
-
-
 procedure DexorFile (fname:string);
 var
   buf   : PByteArray;
@@ -586,6 +540,7 @@ begin
 DexorFile('.\Files\cd12\DIALOGUE.IDX');
 DexorFile ('.\Files\cd12\harvest.scr');
 DexorFile('.\Files\cd3\harvest.scr');
+//DexorFile('.\GRAPHIC\MONSTERS\PC\PC0.abm');
 
 Memo1.Text:='done';
 end;
@@ -1010,23 +965,18 @@ var
  cd : Integer;
  UTFstr1 : UTF8String;
  AnsiStr1 : AnsiString;
- tmpStr : array of string;
 begin
-OriginalStr[Form1.ScrollBar4.position*2 + 1] := TranslateStr[Form1.ScrollBar5.position];
+OriginalStr[Form1.ScrollBar4.position*2+1]:=TranslateStr[Form1.ScrollBar5.position];
 if chk2.Checked then
- begin
-   // Сбрасываем DIALOGUE.IDX ----------------------------------
+  begin
    for i := 0 to Form1.ScrollBar4.Max do
     OriginalStr[i*2 + 1] := TranslateStr[i];
 
-   AssignFile (f, '.\rus\dialogue.idx');
+   AssignFile (f, '.\temp\dialogue.idx.final');
    Rewrite (f);
-
    for i := 0 to (ScrollBar4.Max*2 + 1) do
      Writeln (f, OriginalStr[i]);
-
    CloseFile (f);
-   // Сбрасываем DIALOGUE.IDX ----------------------------------
 
   // Обрабатываем cd 1,2 harvest.scr
   s_1 := '.\files\cd12\HARVEST.SCR.decrypted';
@@ -1042,126 +992,57 @@ if chk2.Checked then
   cd := 3;
   TranslateSCR (s_1, s_2, s_3, cd);
 
-  // Создаем dialog.rsp (Ключевые фразы диалогов)
+  // Создаем dialog.rsp (Ключевые фразы диалогов)	редактируется	35 мин.	100% (783 / 783)	читать
   AssignFile (f, '.\benoid\dialog.rsp_(Ключевые_фразы_диалогов).txt');
   AssignFile (fout, '.\rus\dialog.rsp');
-
   Reset (f);
   Rewrite (fout);
-
   for i:=0 to 782 do
    begin
     Readln (f, UTFstr1);
     while (UTFstr1='') do readln (f, UTFstr1);
-
-    ANSIstr1 := Trim(Utf8ToAnsi(UTFstr1));
-
+    ANSIstr1 := Utf8ToAnsi(UTFstr1);
+    ANSIstr1 := trim (ANSIstr1);
     while (ANSIstr1[1]='?') do Delete (ANSIstr1, 1, 1);
 
     // Если оставить writeln, то в конце dialog.rsp добавляется 0Dh, 0Ah, а их не должно быть
     if (i=782) then
      begin
-      write (fout, AnsiStr1);
-      continue;
+       write (fout, AnsiStr1);
+       continue;
      end;
 
     Writeln (fout, ANSIstr1);
    end;
   CloseFile (f);
   CloseFile (fout);
-  //------------------------------------------------------------------
 
-  // ADJHEAD.RCS -----------------------------------------------------
-  // Game Hints
+  // ADJHEAD.RCS
+  // Game Hints	редактируется	5 дней.	100% (24 / 24)	читать
   AssignFile (f, '.\benoid\Game_Hints.txt');
   AssignFile (fout, '.\rus\ADJHEAD.RCS');
-
   Reset (f);
   Rewrite (fout);
-
-  // В списке 24 совета
-  for i := 0 to 23 do
+  for i:=0 to 23 do
    begin
     Readln (f, UTFstr1);
     while (UTFstr1='') do readln (f, UTFstr1);
-
-    ANSIstr1 := Trim(Utf8ToAnsi(UTFstr1));
+    ANSIstr1 := Utf8ToAnsi(UTFstr1);
+    ANSIstr1 := trim (ANSIstr1);
     while (ANSIstr1[1]='?') do Delete (ANSIstr1, 1, 1);
-
     Writeln (fout, ANSIstr1);
    end;
   CloseFile (f);
   CloseFile (fout);
-  // ADJHEAD.RCS -----------------------------------------------------
-
-  // Патчим harvest.scr для CD1-2
-  k := 1;
-  AssignFile (f, '.\temp\_cd12_HARVEST.SCR');
-  Reset (f);
-  SetLength (tmpStr, k);
-
-  while (not(Eof(f))) do
-   begin
-    readln (f, tmpStr[k - 1]);
-    inc (k);
-    SetLength (tmpStr, k);
-   end;
-  CloseFile (f);
-  DeleteFile('.\temp\_cd12_HARVEST.SCR');
-
-  // патчим
-  tmpStr[1619] := '172 293 199 319 74 1 OBJECT "BARB_OUT" "BARB_CLOSED" "\GRAPHIC\MASKS\BAR2CLOS.BM" "" "" "" "" "" "F" "F"  "" "NULL_ID"';
-  tmpStr[2854] := '289 252 331 290 89 1 OBJECT "DNAEXT" "DNA_CLOSED" "\GRAPHIC\MASKS\EDNACLOS.BM" "" "" "" "" "" "F" "F" "" "NULL_ID"';
-  tmpStr[6699] := '501 105 50  5 ANIM "TV_FSTD" "\GRAPHIC\ROOMANIM\APPLAUSE.ABM" "APPLAUSE" "T" "T" "T" "F" "F" "F"';
-  tmpStr[5]    := '299 0 0 0 2 1 OBJECT "NULL_ID" "EXIT_BM"  "\GRAPHIC\OTHER\EXITSIGN.BM" "" "" "" ""  "" "F" "T" "" "выход"';
-  tmpStr[3887] := '257 311 284 328 89 0 OBJECT "STORE_OUT" "STORE_CLOSED" "\GRAPHIC\MASKS\GENCLOSE.BM"   "" "" "" "" "" "F" "F" "" "NULL_ID"';
-  tmpStr[5469] := '305 273 331 290 89 1 OBJECT "POST" "POST_CLOSED" "\GRAPHIC\MASKS\POSTCLOS.BM" "" "" "" "" "" "F" "F" "" "NULL_ID"';
-  tmpStr[2932] := '102 78 85 15 ANIM "DNAEXT" "\GRAPHIC\ROOMANIM\EDNASIGN.ABM" "DNAEXT_SIGN"      "T" "T" "T" "F" "F" "F"';
-  tmpStr[4180] := '413 332 89 15 ANIM "HOTEL" "\GRAPHIC\ROOMANIM\HOTLSIGN.ABM" "HOTLSIGN" "T" "T" "T" "F" "F" "F"';
-  tmpStr[3964] := '270 284 54 15 ANIM "STORE_IN" "\GRAPHIC\ROOMANIM\COPIER.ABM"   "COPIER"   "F" "T" "F" "F" "T" "F"'; 
-
-  // записываем назад изменения
-  AssignFile (f, '.\rus\cd12\harvest.scr');
-  Rewrite (f);
-  for i := 0 to (k-1) do
-   Writeln (f, tmpstr[i]);
-  CloseFile (f);
-  // Конец патча harvest.scr для CD1-2
-
-  // Патчим harvest.scr для CD3
-    k := 1;
-  AssignFile (f, '.\temp\_cd3_HARVEST.SCR');
-  Reset (f);
-  SetLength (tmpStr, k);
-
-  while (not(Eof(f))) do
-   begin
-    readln (f, tmpStr[k - 1]);
-    inc (k);
-    SetLength (tmpStr, k);
-   end;
-  CloseFile (f);
-  DeleteFile('.\temp\_cd3_HARVEST.SCR');
-
-  // патчим
-  tmpStr[785] := '516 269 60 15  ANIM "GAMEROOM" "\GRAPHIC\ROOMANIM\GAMEPINB.ABM" "GAMEPINB" "T" "T" "T" "F" "F" "F"';
-
-  // записываем назад изменения
-  AssignFile (f, '.\rus\cd3\harvest.scr');
-  Rewrite (f);
-  for i := 0 to (k-1) do
-   Writeln (f, tmpstr[i]);
-  CloseFile (f);
-  // Конец патча harvest.scr для CD3
-
 
   form1.Memo1.Lines.Add('done');
-  // XorFile('.\temp\dialogue.idx.final');
-  // XorFile('.\temp\_cd12_HARVEST.SCR');
-  // XorFile('.\temp\_cd3_harvest.scr');
+
+  XorFile('.\temp\dialogue.idx.final');
+  XorFile('.\temp\_cd12_HARVEST.SCR');
+  XorFile('.\temp\_cd3_harvest.scr');
 
   Memo1.Lines.Add('done.');
- end;
+  end;
 end;
 
 procedure TForm1.harvestscrBuilderClick(Sender: TObject);
@@ -1336,8 +1217,8 @@ fin:file of Byte;
 buf:PByteArray;
 path:string;
 begin
-//UnpackDat('.\rus\cd12\harvest.dat');
-UnpackDat('.\cd3\harvest.dat');
+UnpackDat('harvest.dat');
+//UnpackDat('harvest2.dat');
 //UnpackDat('sound.dat');
 {
  if FindFirst('.\GRAPHIC\ROOMS\*.BM', faAnyFile, searchResult) = 0 then
@@ -1353,7 +1234,6 @@ UnpackDat('.\cd3\harvest.dat');
    end;
 }
 
-{
  //path:='.\GRAPHIC\ROOMOBJ\';
  path:='.\GRAPHIC\MASKS\';
  if FindFirst(path + '*.BM', faAnyFile, searchResult) = 0 then
@@ -1370,7 +1250,7 @@ UnpackDat('.\cd3\harvest.dat');
        x:=getDWORD(0, buf);
        y:=getDWORD(4, buf);
 
-       CreateBMP(x, y, path + fname1 + '.BM', '.\GRAPHIC\PAL\CD1.PAL', 12);
+       CreateBMP(x, y, path + fname1 + '.BM', '.\GRAPHIC\PAL\BARBER.PAL', 12);
 
        CloseFile (fin);
        FreeMem(buf); // освободить, закрыть и уйти.
@@ -1380,14 +1260,14 @@ UnpackDat('.\cd3\harvest.dat');
     // Должен освободить ресурсы, используемые этими успешными, поисками
      FindClose(searchResult);
    end;
-    }
+
 
 
 Form1.Memo1.Lines.Add('done');
 end;
 
 // этот блок целиком написан в Крыму 2013, под море, теплое солнце и
-// 
+// ебанические турбо-шишки.
 procedure TForm1.bmpFontImportClick(Sender: TObject);
 var
 bmpFont   : PByteArray;
@@ -1547,18 +1427,13 @@ end;
 procedure Dat_Rusify (fname:string; cd:Integer);
 var
 Datsbuf, bmpin : PByteArray;
-DatFileSize, bmpFileSize, pos1, bmpPos, BMPw, BMPh, totalpics, fsize, i, j, k, delta:longint;
+DatFileSize, bmpFileSize, pos1, bmpPos, BMPw, BMPh, totalpics, fsize, i, j, k:longint;
 fin, fout:file of Byte;
 fname2, Path : string;
 logout, pics2replace : TextFile;
 files : array of string;
   f : TFileStream;
   s : AnsiString;
-
-const
-XFLE_DATA_OFFSET = $A0;
-XFLE_BMPw_OFFSET = $94;
-XFLE_BMPh_OFFSET = $98;
 
 begin
 FileMode := fmShareDenyNone; // права доступа отключить ругань
@@ -1581,7 +1456,6 @@ CloseFile (fin);
 // Теперь заполняем список файлов.BM для замены
 AssignFile (pics2replace, '.\rus\rooms\pics2replace.txt');
 Reset (pics2replace);
-
 totalpics:=0;
 while (not(Eof(pics2replace))) do
  begin
@@ -1595,69 +1469,41 @@ CloseFile (pics2replace);
 for i:= 0 to (totalpics - 1) do // все имена
  begin
   fname2 := Files[i];
-  if fname2 = '\ROOMOBJ\BRNTFLYR.RAW' then fname2 := '\ROOMOBJ\BRNTFLYR.BM';
-  if fname2 = '\INVENTRY\BRNTFLYRsmall.RAW' then fname2 := '\INVENTRY\BRNTFLYR.BM';
-  if fname2 = '\ROOMOBJ\BUTTON.RAW' then fname2 := '\ROOMOBJ\BUTTON.BM';
-  if fname2 = 'MAILBOX.RAW' then fname2 := 'MAILBOX.BM';
-  if fname2 = 'TIPS.RAW' then fname2 := 'TIPS.BM';
-  if fname2 = 'GAMEOVER_OTHER.BM' then fname2 := '\OTHER\GAMEOVER.BM';
-  if fname2 = 'GAMEOVER_ROOMS.BM' then fname2 := '\ROOMS\GAMEOVER.BM';
-
   pos1 := posex (fname2, s, 0);
-
   if pos1 <> 0 then
    begin
-    Path := '.\rus\rooms\bm\' + fname2 + '.bmp';
-    if fname2 = '\ROOMOBJ\BRNTFLYR.BM' then Path := '.\rus\rooms\bm\BRNTFLYR.RAW';
-    if fname2 = '\INVENTRY\BRNTFLYR.BM' then Path := '.\rus\rooms\bm\BRNTFLYRsmall.RAW';
-    if fname2 = '\ROOMOBJ\BUTTON.BM' then Path := '.\rus\rooms\bm\BUTTON.RAW';
-    if fname2 = 'MAILBOX.BM' then Path := '.\rus\rooms\bm\MAILBOX.RAW';
-    if fname2 = 'TIPS.BM' then Path := '.\rus\rooms\bm\TIPS.RAW';
-    if fname2 = '\OTHER\GAMEOVER.BM' then Path := '.\rus\rooms\bm\GAMEOVER_OTHER.BM.BMP';
-    if fname2 = '\ROOMS\GAMEOVER.BM' then Path := '.\rus\rooms\bm\GAMEOVER_ROOMS.BM.BMP';
-    if fname2 = '\ROOMS\INVITE.BM' then path := '.\rus\rooms\bm\INVITE.BM.BMP';
-    if fname2 = '\ROOMS\CLUE.BM' then path := '.\rus\rooms\bm\CLUE.BM.BMP';
-
-    AssignFile(fin, Path);
+    AssignFile(fin, '.\rus\rooms\bm\' + fname2 + '.bmp');
     Reset(fin);
-
     bmpFileSize := FileSize(fin);
     GetMem(bmpin, bmpFileSize); // выделяем память буферу
     Blockread(fin, bmpin[0], bmpFileSize);  // читаем весь файл harvest.dat туда
     CloseFile (fin);
 
-    // Отодвигаем указатель назад до двоеточия (':' = $3A) после XFLE
+    // Отодвигаем указатель назад до двоеточия ($3A) после XFLE
     while (datsbuf[pos1] <> $3A) do
      Dec (pos1);
 
     // Делаем еще -5 = XFLE
     Dec (pos1, 5);
 
-    BMPw := getDWORD(pos1 + XFLE_BMPw_OFFSET, Datsbuf);
-    BMPh := getDWORD(pos1 + XFLE_BMPh_OFFSET, Datsbuf);
-
+    BMPw := getDWORD(pos1 + $94, Datsbuf);
+    BMPh := getDWORD(pos1 + $98, Datsbuf);
     // передвигаем указатель на начало данных
     //inc (pos1, $A0);
 
     // берем указатель данных BMP
     bmpPos := getDWORD($0A, bmpin);
-    if fname2 = '\ROOMOBJ\BRNTFLYR.BM' then bmpPos := 0;
-    if fname2 = '\INVENTRY\BRNTFLYR.BM' then bmpPos := 0;
-    if fname2 = '\ROOMOBJ\BUTTON.BM' then bmpPos := 0;
-    if fname2 = 'MAILBOX.BM' then bmpPos := 0;
-    if fname2 = 'TIPS.BM' then bmpPos := 0;
 
-    Move (bmpin[bmpPos], Datsbuf[pos1 + XFLE_DATA_OFFSET], BMPw * BMPh);
+    Move (bmpin[bmpPos], Datsbuf[pos1 + $A0], BMPw * BMPh);
     Form1.memo1.lines.add (fname2);
    end;
 
    if (pos1 = 0) then Form1.memo1.lines.add (fname2 + ' is in another castle.');
-   if (pos1 <> 0) then FreeMem (bmpin);
+   FreeMem (bmpin);
  end;
 
  if cd=1 then Path := '.\rus\cd12\out\harvest.dat';
  if cd=3 then Path := '.\rus\cd3\out\harvest.dat';
-
  AssignFile(fout, path);
  Rewrite (fout);
  BlockWrite (fout, Datsbuf[0], DatFileSize);
@@ -1669,294 +1515,12 @@ procedure TForm1.btn3Click(Sender: TObject);
 begin
 //cd1-2 = 1
 Dat_rusify ('.\rus\cd12\HARVEST.DAT', 1);
-
-//cd3 = 3
-//Dat_rusify ('.\rus\cd3\HARVEST.DAT', 3);
-end;
-
-procedure encodeABM (path, filename, ext:string);
-var
-abmBuf, RLEbuf, BMPbuf : PByteArray;
-NUM, NUMidx, abmFileSize, bmpFileSize, bmpDataStart, pos1, bmpPos, BMPw, BMPh, totalpics, fsize, idx, RLEidx, j, k, cnt, framesTOTAL, frameNUM, maxRAWsize, i:longint;
-RLEidxstart, NUMmax, number, offset, maxBuf : LongInt;
-fin, fout:file of Byte;
-fname2, FULLpath : string;
-log, pics2replace : TextFile;
-files : array of string;
-  f : TFileStream;
-  s : AnsiString;
-  eigthZero : boolean;
- cByte : Byte;
-begin
- // Читаем оригинальный файл .ABM с анимацией
- // в буфер abmBuf[]
- AssignFile(fin, path + '\IN_ABM\' + filename + '.ABM');
- Reset(fin);
- abmFileSize := FileSize(fin);
- GetMem(abmBuf, abmFileSize); // выделяем память буферу
- Blockread(fin, abmBuf[0], abmFileSize);  // читаем весь файл туда
- CloseFile (fin);
- //--------------------------------------------
-
- // Сохраняем количество кадров во framesTOTAL
- framesTOTAL := getDWORD(0, abmBuf);
- GetMem(RLEbuf, abmFileSize*20);
-
- // первое начало кодированного кадра со смещения 8
- idx := 8;
- RLEidx:=8;
-
- {
- if filename = 'POINTERS' then
-  begin
-   idx := 19313;
-   RLEidx := 8;
-  end;
- }
- 
- writeDWORD(framesTOTAL, 0, RLEbuf);
-
- maxBuf := 0;
- for i := 1 to framesTOTAL do
- begin
-  //Readln (log, RLEidx);
-  frameNUM := i;
-
-  // Читаем очередной BMP/RAW кадр
-  FULLpath := path + '\' + filename +'\' + filename + '_' + IntToStr(frameNUM) + EXT;
-  AssignFile (fin, FULLpath);
-  Reset(fin);
-  bmpFileSize := FileSize(fin);
-  GetMem(BMPbuf, bmpFileSize); // выделяем память буферу
-  Blockread(fin, BMPbuf[0], bmpFileSize);  // читаем весь файл туда
-  CloseFile (fin);
-
-  // берем из BMP файла размеры X, Y
-  BMPw := getDWORD ($12, BMPbuf);
-  BMPh := getDWORD ($16, BMPbuf);
-
-  if filename = 'EDNASIGN' then begin BMPw := 141; BMPh := 121; end;
-  if filename = 'GAMEPINB' then begin BMPw := 79; BMPh := 79; end;
-  if filename = 'COPIER'   then begin BMPw := 63; BMPh := 19; end;
-
-  if filename = 'POINTERS' then
-   begin
-    if frameNUM = 1  then begin BMPw := 16; BMPh := 25; end;
-    if frameNUM = 2  then begin BMPw := 17; BMPh := 26; end;
-    if frameNUM = 3  then begin BMPw := 19; BMPh := 25; end;
-    if frameNUM = 4  then begin BMPw := 19; BMPh := 25; end;
-    if frameNUM = 5  then begin BMPw := 16; BMPh := 25; end;
-    if frameNUM = 6  then begin BMPw := 16; BMPh := 25; end;
-    if frameNUM = 7  then begin BMPw := 18; BMPh := 25; end;
-    if frameNUM = 8  then begin BMPw := 19; BMPh := 25; end;
-    if frameNUM = 9  then begin BMPw := 18; BMPh := 25; end;
-    if frameNUM = 10 then begin BMPw := 17; BMPh := 25; end;
-
-    if ((frameNUM >= 11) and (frameNUM <= 20)) then begin BMPw := 22; BMPh := 23; end;
-
-    if frameNUM = 21 then begin BMPw := 23; BMPh := 16; end;
-    if frameNUM = 22 then begin BMPw := 23; BMPh := 16; end;
-    if ((frameNUM >= 23) and (frameNUM <= 29)) then begin BMPw := 23; BMPh := 17; end;
-    if frameNUM = 30 then begin BMPw := 23; BMPh := 16; end;
-
-    if frameNUM = 31 then begin BMPw := 24; BMPh := 24; end;
-    if frameNUM = 32 then begin BMPw := 24; BMPh := 24; end;
-    if frameNUM = 33 then begin BMPw := 24; BMPh := 24; end;
-    if frameNUM = 34 then begin BMPw := 23; BMPh := 23; end;
-    if frameNUM = 35 then begin BMPw := 22; BMPh := 22; end;
-    if frameNUM = 36 then begin BMPw := 22; BMPh := 21; end;
-    if frameNUM = 37 then begin BMPw := 22; BMPh := 22; end;
-    if frameNUM = 38 then begin BMPw := 23; BMPh := 23; end;
-    if frameNUM = 39 then begin BMPw := 24; BMPh := 24; end;
-    if frameNUM = 40 then begin BMPw := 24; BMPh := 24; end;
-
-    if ((frameNUM >= 41) and (frameNUM <= 50)) then begin BMPw := 25; BMPh := 25; end;
-
-    if frameNUM = 51 then begin BMPw := 19; BMPh := 19; end;
-    if frameNUM = 52 then begin BMPw := 19; BMPh := 20; end;
-    if frameNUM = 53 then begin BMPw := 19; BMPh := 20; end;
-    if frameNUM = 54 then begin BMPw := 19; BMPh := 21; end;
-    if frameNUM = 55 then begin BMPw := 19; BMPh := 21; end;
-    if frameNUM = 56 then begin BMPw := 19; BMPh := 21; end;
-    if frameNUM = 57 then begin BMPw := 19; BMPh := 20; end;
-    if frameNUM = 58 then begin BMPw := 19; BMPh := 20; end;
-    if frameNUM = 59 then begin BMPw := 19; BMPh := 20; end;
-    if frameNUM = 60 then begin BMPw := 20; BMPh := 19; end;
-
-    if ((frameNUM >= 61) and (frameNUM <= 70)) then begin BMPw := 26; BMPh := 26; end;
-
-    if frameNUM = 71 then begin BMPw := 23; BMPh := 23; end;
-    if frameNUM = 72 then begin BMPw := 22; BMPh := 23; end;
-    if frameNUM = 73 then begin BMPw := 17; BMPh := 23; end;
-    if frameNUM = 74 then begin BMPw := 17; BMPh := 23; end;
-    if frameNUM = 75 then begin BMPw := 22; BMPh := 23; end;
-    if frameNUM = 76 then begin BMPw := 23; BMPh := 23; end;
-    if frameNUM = 77 then begin BMPw := 22; BMPh := 23; end;
-    if frameNUM = 78 then begin BMPw := 17; BMPh := 23; end;
-    if frameNUM = 79 then begin BMPw := 17; BMPh := 23; end;
-    if frameNUM = 80 then begin BMPw := 22; BMPh := 23; end;
-   end;
-
-  {
-  FULLpath := path + '\' + filename + '\' + filename + '_' + IntToStr(frameNUM) + EXT;
-  AssignFile (fin, FULLpath);
-  Reset(fin);
-  bmpFileSize := FileSize(fin);
-  GetMem(BMPbuf, bmpFileSize); // выделяем память буферу
-  Blockread(fin, BMPbuf[0], bmpFileSize);  // читаем весь файл туда
-  CloseFile (fin);
-  }
-
-  // максимальный буфер среди всех кадров
-  maxRAWsize := BMPw * BMPh;
-  if maxRAWsize > maxBuf then maxBuf := maxRAWsize;
-  writeDWORD (maxBuf, 4, RLEbuf);
-
-  // начинается ABM файла со смещений кадра
-  // 2 смещения по X Y , каждое по 4 байта, пишем нули
-  writeDWORD (0, RLEidx + 0, RLEbuf);
-  writeDWORD (0, RLEidx + 4, RLEbuf);
-
-  // пишем разрешение кадра, сперва X, затем Y
-  writeDWORD (BMPw, RLEidx + 8, RLEbuf);
-  writeDWORD (BMPh, RLEidx + 12, RLEbuf);
-
-  // packed byte = 1 сжато, 0 = не сжато.
-  RLEbuf [RLEidx + 16] := 1;
-
-  // размер данных, сжатых или нет
-  writeDWORD (maxRAWsize, RLEidx + 17, RLEbuf);
-
-  if filename = 'POINTERS' then number := 18692; // для pointers.abm
-  if filename = 'WAIT' then number := 49208; // wait.abm
-  if filename = 'EDNASIGN' then number := 28728;
-  if filename = 'GAMEPINB' then number := 16440;
-  if filename = 'COPIER' then number := 16440;
-  offset := RLEidx + 21;
-  writeWORD (number, offset, RLEbuf);
-
-  if filename = 'POINTERS' then number := 104; // для pointers.abm
-  if filename = 'WAIT' then number := 87; // wait.abm
-  if filename = 'EDNASIGN' then number := 49;
-  if filename = 'GAMEPINB' then number := 39;
-  if filename = 'COPIER' then number := 39;
-  offset := RLEidx + 23;
-  writeWORD (number, offset, RLEbuf);
-
-  // пропускаем заголовок 25 байт
-  inc (RLEidx, 25);
-  //inc (idx, 25);
-
-  // запоминаем позицию начала кодированных байт
-  RLEidxstart := RLEidx;
-
-  // Вот тут начинаем сжимать BMP и писать в RLE буфер
-  if ext = '.RAW' then bmpDataStart := 0;
-  if ext = '.BMP' then bmpDataStart := getDWORD($0A, BMPbuf);
-
-//  Move (BMPbuf[bmpDataStart], RLEbuf[RLEidx], maxRAWsize);
-//  inc (RLEidx, maxRAWsize);
-
-  //Move(BMPbuf[0], RLEbuf[RLEidxstart], bmpFileSize);
-  //inc (RLEidx, bmpFileSize);
-
-  // жмем BMP
-  NUMmax := 0;
- // if filename<>'POINTERS' then
-
- while ((bmpDataStart + 1) <= bmpFileSize) do
-   begin
-    cByte := BMPbuf[bmpDataStart];
-    NUM := 1;
-    // пакуем одинаковые байты
-    while ( ((bmpDataStart + 1) <= bmpFileSize) and (BMPbuf[bmpDataStart + 1] = cByte) ) do
-     begin
-      inc (NUM); // увеличиваем счетчик одинаковых байт
-      inc (bmpDataStart); // и переходим к следующему байту BMP
-      if NUM >= 127 then
-      begin
-       if NUM > NUMmax then NUMmax := NUM;
-       Break; // в данной версии RLE их не может быть >127
-       end;
-     end;
-
-   // есть повторы >=2
-    if NUM >= 2 then
-     begin
-      RLEbuf[RLEidx + 0] := NUM + $80; // пишем количество повторов
-      RLEbuf[RLEidx + 1] := cByte;     // и сам байт
-      inc (RLEidx, 2); // смещаем указатель сжатых данных на следующий
-      inc (bmpDataStart); // переходим к следующему байту
-      if NUM > NUMmax then NUMmax := NUM;
-      Continue;
-     end;
-
-    // нет повторов, след байт не равен предыдущему
-    NUMidx := RLEidx;
-    NUM := 1;
-
-    while ( ((bmpDataStart + 1) <= bmpFileSize) and (BMPbuf[bmpDataStart + 1] <> BMPbuf[bmpDataStart])) do
-     begin
-      RLEbuf[NUMidx] := NUM;
-      RLEbuf[RLEidx + 1] := BMPbuf[bmpDataStart];
-
-      Inc (NUM);
-      inc (bmpDataStart);
-      inc (RLEidx);
-      if NUM >= 127 then
-       begin
-        if NUM > NUMmax then NUMmax := NUM;
-        Break;
-       end;
-     end;
-
-    if NUM >= 2 then
-     begin
-      inc (RLEidx);
-      if NUM > NUMmax then NUMmax := NUM;
-     end;
-   end;
-
-
-  // пишем в заголовок размер кодированных данных
-  writeDWORD (RLEidx - RLEidxstart, RLEidxstart - 8, RLEbuf);
-
-  // фикс для WAIT. перезаполняю таблицу кадра
-  if filename='WAIT' then
-   begin
-    RLEbuf[RLEidxstart - 9] := 1;
-    writeWORD(49208, RLEidxstart - 4, RLEbuf);
-    writeWORD(87, RLEidxstart - 2, RLEbuf);
-   end;
-
-  // заполняю таблицу
-  if filename='POINTERS' then
-   begin
-    RLEbuf[RLEidxstart - 9] := 1;
-    writeWORD(18692, RLEidxstart - 4, RLEbuf);
-    writeWORD(104, RLEidxstart - 2, RLEbuf);
-   end;
-
-  FreeMem (BMPbuf);
- end;
-
- //AssignFile (fout, '.\rus\ANIMATION\OUT_ABM\' + filename + '.ABM');
- AssignFile (fout, '.\Files\ABM\' + filename + '.ABM');
- Rewrite (fout);
- BlockWrite (fout, RLEbuf[0], RLEidx);
- CloseFile (fout);
-
- FreeMem (abmBuf);
- FreeMem (RLEbuf);
-
- Form1.Memo1.Lines.add ('done');
 end;
 
 procedure decodeABM (fname:string);
 var
 abmBuf, deRLEbuf : PByteArray;
 abmFileSize, pos1, bmpPos, BMPw, BMPh, totalpics, fsize, idx, deRLEidx, j, k, cnt, framesTOTAL, frameNUM, RAWsize:longint;
-pkdByte, PackedSize, unk3, unk4, offX, offY, RLEdatasize, i2 : LongInt;
 fin, fout:file of Byte;
 fname2, Path : string;
 logout, pics2replace : TextFile;
@@ -1964,6 +1528,7 @@ files : array of string;
   f : TFileStream;
   s : AnsiString;
   eigthZero : boolean;
+label a1;
 begin
  AssignFile(fin, fname);
  Reset(fin);
@@ -1972,10 +1537,6 @@ begin
  Blockread(fin, abmBuf[0], abmFileSize);  // читаем весь файл туда
  CloseFile (fin);
 
- // лог смещений до кадра
- AssignFile (logout, 'anim_offsets.txt');
- Rewrite (logout);
-
  framesTOTAL := getDWORD(0, abmBuf);
  RAWsize := getDWORD($4, abmBuf);
 
@@ -1983,27 +1544,20 @@ begin
 
  for frameNUM := 1 to framesTOTAL do
  begin
-  // читаем заголовок
-  offX := getDWORD (idx + 0, abmBuf); // смещение кадра по x
-  offY := getDWORD (idx + 4, abmBuf); // смещение кадра по y
-
+  //if frameNUM<10 then fname := fname + '0';
   BMPw := getDWORD(idx + 8, abmBuf);
   BMPh := getDWORD(idx + 12, abmBuf);
 
-  pkdByte := abmBuf[idx + 16];     // =1 изображение сжато, 0 - нет
-  PackedSize := getDWORD(idx + 17, abmBuf); // RLE packed size RAW
-  unk3 := getWORD(idx + 21, abmBuf);  // хуй знат что за числа
-  unk4 := getWORD(idx + 23, abmBuf);  // хуй знат что за числа
+  if ((BMPw>640) or (BMPw<0) or (BMPh>480) or (BMPh<0)) then
+   begin
+     while (abmBuf[idx]<>0) do
+      inc (idx);
 
-  Write (logout, 'offset=' + inttostr(idx) + ', ');
-  write (logout, 'x=' + inttostr(BMPw) + ', ');
-  write (logout, 'y=' + inttostr(BMPh) + ', ');
-  write (logout, 'x*y=' + inttostr (BMPw * BMPh) + ', ');
-  write (logout, inttostr(offX) + ', ' + inttostr(offY) + ', ');
-  write (logout, inttostr(pkdByte) + ', ' + inttostr(PackedSize) + ', ' + inttostr(unk3) + ', ' + inttostr(unk4));
-  Writeln (logout, '');
+     BMPw := getDWORD(idx + 8, abmBuf);
+     BMPh := getDWORD(idx + 12, abmBuf);
+   end;  
 
-  if ((BMPw = 0) or (BMPh = 0) or (BMPw = 1) or (BMPh = 1)) then
+  if ((BMPw=0) or (BMPh=0) or (BMPw=1) or (BMPh=1)) then
    begin
      Form1.Memo1.Lines.Add('bmp x,y=0; error');
      Continue;
@@ -2015,9 +1569,14 @@ begin
   // двигаем указатель на данные
   inc (idx, 25);
 
-  while ( deRLEidx < (BMPw * BMPh) ) do
+  // почти всегда работает
+  // while (deRLEidx < (BMPw * BMPh) ) do
+  {eigthZero := ((abmBuf[idx]<>0) and (abmBuf[idx+1]<>0) and (abmBuf[idx+2]<>0) and (abmBuf[idx+3]<>0) and
+          (abmBuf[idx+4]<>0) and (abmBuf[idx+5]<>0) and (abmBuf[idx+6]<>0) and (abmBuf[idx+7]<>0) );
+  if eigthZero=True then Inc (idx, 25); }
+
+  while (deRLEidx < (BMPw * BMPh) ) do
    begin
-    // уникальные байты
     if abmBuf[idx] < $80 then
      begin
       cnt := abmBuf[idx];
@@ -2029,35 +1588,35 @@ begin
        inc (deRLEidx);
        Inc (idx);
        end;
+      //Continue;
      end;
-    // количество повторов
+
     if abmBuf[idx] > $80 then
      begin
       cnt := abmBuf[idx] - $80;
-      for j := 1 to cnt do
+      for j := 1 to (cnt) do
        begin
        deRLEbuf[deRLEidx] := abmBuf[idx + 1];
        inc (deRLEidx);
        end;
+
       inc (idx, 2);
      end;
    end;
 
+   a1:
    AssignFile (fout, fname + inttostr(frameNUM) + '.raw');
    Rewrite (fout);
    BlockWrite (fout, deRLEbuf[0], BMPw*BMPh);
    CloseFile (fout);
 
-   CreateBMP(BMPw, BMPh, fname + inttostr(frameNUM) + '.raw', '.\GRAPHIC\PAL\GENINSD.PAL', 0);
-   //DeleteFile(fname + inttostr(frameNUM) + '.raw');
+   CreateBMP(BMPw, BMPh, fname + inttostr(frameNUM) + '.raw', '.\GRAPHIC\PAL\cd1.PAL', 0);
+   DeleteFile(fname + inttostr(frameNUM) + '.raw');
 
    FreeMem (deRLEbuf);
   end;
 
-  CloseFile (logout);
   FreeMem (abmBuf);
-
-  Form1.Memo1.Lines.add ('done');
 end;
 
 procedure TForm1.btn4Click(Sender: TObject);
@@ -2069,8 +1628,8 @@ var
 fin:file of Byte;
 buf:PByteArray;
 begin
-decodeABM('.\FILES\ABM\COPIER.ABM');
- {
+ //decodeABM('.\files\abm\DINRDOOR.ABM');
+
  path:='.\files\abm\';
  if FindFirst(path + '*.ABM', faAnyFile, searchResult) = 0 then
    begin
@@ -2082,17 +1641,7 @@ decodeABM('.\FILES\ABM\COPIER.ABM');
     // Должен освободить ресурсы, используемые этими успешными, поисками
      FindClose(searchResult);
    end;
-  }
-end;
-
-procedure TForm1.Button1Click(Sender: TObject);
-begin
-//encodeABM('.\rus\ANIMATION', 'EDNASIGN', '.RAW');
-//encodeABM('.\rus\ANIMATION', 'applause', '.BMP');
-//encodeABM('.\rus\ANIMATION', 'HOTLSIGN', '.BMP');
-//encodeABM('.\rus\ANIMATION', 'GAMEPINB', '.RAW');
-//encodeABM('.\rus\ANIMATION', 'WAIT', '.BMP');
-encodeABM('.\rus\ANIMATION', 'COPIER', '.RAW');
+  
 end;
 
 end.

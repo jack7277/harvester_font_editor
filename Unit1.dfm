@@ -1,8 +1,8 @@
 object Form1: TForm1
-  Left = 8
-  Top = 0
-  Width = 1021
-  Height = 597
+  Left = 100
+  Top = 64
+  Width = 1365
+  Height = 803
   Caption = 'Form1'
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -131,7 +131,7 @@ object Form1: TForm1
     TabOrder = 3
     OnChange = fontnumChange
   end
-  object ScrollBar1: TScrollBar
+  object zoom: TScrollBar
     Left = 336
     Top = 19
     Width = 121
@@ -141,9 +141,9 @@ object Form1: TForm1
     PageSize = 0
     Position = 40
     TabOrder = 4
-    OnChange = ScrollBar1Change
+    OnChange = zoomChange
   end
-  object ScrollBar2: TScrollBar
+  object ColorChoose: TScrollBar
     Left = 8
     Top = 319
     Width = 170
@@ -152,18 +152,18 @@ object Form1: TForm1
     PageSize = 0
     Position = 15
     TabOrder = 5
-    OnChange = ScrollBar2Change
+    OnChange = ColorChooseChange
   end
-  object btn1: TButton
+  object SaveFont: TButton
     Left = 136
     Top = 412
     Width = 41
     Height = 25
     Caption = #1089#1093#1088#1085#1090#1100
     TabOrder = 6
-    OnClick = btn1Click
+    OnClick = SaveFontClick
   end
-  object se1: TSpinEdit
+  object seSymWidth: TSpinEdit
     Left = 8
     Top = 442
     Width = 169
@@ -173,7 +173,7 @@ object Form1: TForm1
     MinValue = 1
     TabOrder = 7
     Value = 2
-    OnChange = se1Change
+    OnChange = seSymWidthChange
   end
   object btn2: TButton
     Left = 51
@@ -184,15 +184,15 @@ object Form1: TForm1
     TabOrder = 8
     OnClick = btn2Click
   end
-  object ScrollBar3: TScrollBar
+  object FontChoose: TScrollBar
     Left = 65
     Top = 296
     Width = 112
     Height = 18
-    Max = 5
+    Max = 8
     PageSize = 0
     TabOrder = 9
-    OnChange = ScrollBar3Change
+    OnChange = FontChooseChange
   end
   object mmo1: TMemo
     Left = 592
@@ -228,13 +228,85 @@ object Form1: TForm1
     TabOrder = 13
     OnChange = ScrollBar5Change
   end
-  object btn3: TButton
+  object _SaveTranslation: TButton
     Left = 943
     Top = 102
     Width = 66
     Height = 27
     Caption = #1057#1093#1088#1085#1090#1100' '#1087#1088#1074#1076
     TabOrder = 14
+    OnClick = _SaveTranslationClick
+  end
+  object chk1: TCheckBox
+    Left = 938
+    Top = 134
+    Width = 97
+    Height = 17
+    Caption = #1050#1078#1076#1103' '#1089#1090#1088#1082#1072
+    TabOrder = 15
+  end
+  object datUnpack: TButton
+    Left = 942
+    Top = 211
+    Width = 70
+    Height = 25
+    Caption = 'DAT unpack'
+    TabOrder = 16
+    OnClick = datUnpackClick
+  end
+  object chk2: TCheckBox
+    Left = 940
+    Top = 155
+    Width = 72
+    Height = 17
+    Caption = #1057#1086#1093#1088
+    Checked = True
+    State = cbChecked
+    TabOrder = 17
+  end
+  object bmpFontImport: TButton
+    Left = 944
+    Top = 240
+    Width = 67
+    Height = 25
+    Caption = 'imprt bmp'
+    TabOrder = 18
+    OnClick = bmpFontImportClick
+  end
+  object btn1: TButton
+    Left = 56
+    Top = 384
+    Width = 121
+    Height = 25
+    Caption = #1074#1085#1080#1079
+    TabOrder = 19
+    OnClick = btn1Click
+  end
+  object btn3: TButton
+    Left = 944
+    Top = 272
+    Width = 65
+    Height = 25
+    Caption = 'dat_rusify'
+    TabOrder = 20
     OnClick = btn3Click
+  end
+  object btn4: TButton
+    Left = 944
+    Top = 304
+    Width = 65
+    Height = 25
+    Caption = 'abm de-rle'
+    TabOrder = 21
+    OnClick = btn4Click
+  end
+  object Button1: TButton
+    Left = 942
+    Top = 336
+    Width = 67
+    Height = 32
+    Caption = 'ABM encode'
+    TabOrder = 22
+    OnClick = Button1Click
   end
 end
