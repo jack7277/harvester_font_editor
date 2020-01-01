@@ -79,9 +79,9 @@ var
   buf,buf_pal   : PByteArray;
   GlobalFileSize:longint;
   fin:file of Byte;
-  font_width: array [0..255] of Integer; // ширины символов
-  font_start: array [0..255] of longint;// таблица смещений начала символа
-  font_array: array [0..500, 0..10000] of Byte; // прямоугольник шрифта
+  font_width: array [0..255] of Integer; // С€РёСЂРёРЅС‹ СЃРёРјРІРѕР»РѕРІ
+  font_start: array [0..255] of longint;// С‚Р°Р±Р»РёС†Р° СЃРјРµС‰РµРЅРёР№ РЅР°С‡Р°Р»Р° СЃРёРјРІРѕР»Р°
+  font_array: array [0..500, 0..10000] of Byte; // РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРє С€СЂРёС„С‚Р°
   StartOffsetWidth, StartOffsetOfOffset, dataStart, PenColor, font_w, font_h, abcLen :LongInt;
   pal: PLogPalette;
   hpal: HPALETTE;
@@ -102,7 +102,7 @@ var
 'Wayward_Hotel', 'Edna''s_Diner', 'Fire_Station', 'The_Lodge',
 'Police_Station' , 'Newspaper_Building');
 
- // cd1-2, имена
+ // cd1-2, РёРјРµРЅР°
  const npc_names_eng:array [0..30] of AnsiString=(
  'Hank', 'Mom', 'Jimmy_James', 'Dad', 'Mr._Pottsdam',
  'Mrs._Pottsdam', 'Stephanie', 'Sheriff_Dwayne', 'Mr._Parsons', 'Mr._Swell',
@@ -112,7 +112,7 @@ var
  'PTA_Mom', 'Deputy_Loomis', 'Range_Ryder', 'Mr._McKnight', 'Tetsua_Crumb',
  'Sergeant_at_Arms');
 
- // cd3 имена NPC
+ // cd3 РёРјРµРЅР° NPC
  const npc_names_eng_cd3:array [0..31] of AnsiString=(
  'Valet', 'big_eye', 'cloak_room_attendant', 'Lodge_chef', 'plant',
  'art_curator', 'Chessmaster', 'Cain', 'membership_director', 'maintenance_man',
@@ -125,7 +125,7 @@ var
 implementation
 {$R *.dfm}
 
-procedure TranslateSCR (s_1, s_2, s_3 : string; cd:integer); // cd=3 диск 3, другие значения CD=1
+procedure TranslateSCR (s_1, s_2, s_3 : string; cd:integer); // cd=3 РґРёСЃРє 3, РґСЂСѓРіРёРµ Р·РЅР°С‡РµРЅРёСЏ CD=1
 var
   f, fout, frus, ftablerus:TextFile;
   i,j, pos1, pos2, off1, size1, map_stuff_index, npc_names_index, BoxNum, index:Integer;
@@ -138,10 +138,10 @@ var
 label a1, a2;
 begin
  //StrCount := 0;
- AssignFile (f, s_1);  // Английский текст скрипта
- //AssignFile (fout, 'descr.txt');     // Английский список названий предметов и их описаний
- AssignFile (frus, s_2); // Русский текст скрипта
- AssignFile (ftablerus, s_3); // Русский список названий предметов и их описаний
+ AssignFile (f, s_1);  // РђРЅРіР»РёР№СЃРєРёР№ С‚РµРєСЃС‚ СЃРєСЂРёРїС‚Р°
+ //AssignFile (fout, 'descr.txt');     // РђРЅРіР»РёР№СЃРєРёР№ СЃРїРёСЃРѕРє РЅР°Р·РІР°РЅРёР№ РїСЂРµРґРјРµС‚РѕРІ Рё РёС… РѕРїРёСЃР°РЅРёР№
+ AssignFile (frus, s_2); // Р СѓСЃСЃРєРёР№ С‚РµРєСЃС‚ СЃРєСЂРёРїС‚Р°
+ AssignFile (ftablerus, s_3); // Р СѓСЃСЃРєРёР№ СЃРїРёСЃРѕРє РЅР°Р·РІР°РЅРёР№ РїСЂРµРґРјРµС‚РѕРІ Рё РёС… РѕРїРёСЃР°РЅРёР№
 
  Reset(f);
  Reset(ftablerus);
@@ -150,51 +150,51 @@ begin
 
  while (not(Eof(f))) do
   begin
-   Readln (f, OriginalString);  // Читаем строку оригинала cd12\harvest.str, скрипт
-   StupidStr:=true; // Думаем, что это строка, которая не несет смысла для перевода
+   Readln (f, OriginalString);  // Р§РёС‚Р°РµРј СЃС‚СЂРѕРєСѓ РѕСЂРёРіРёРЅР°Р»Р° cd12\harvest.str, СЃРєСЂРёРїС‚
+   StupidStr:=true; // Р”СѓРјР°РµРј, С‡С‚Рѕ СЌС‚Рѕ СЃС‚СЂРѕРєР°, РєРѕС‚РѕСЂР°СЏ РЅРµ РЅРµСЃРµС‚ СЃРјС‹СЃР»Р° РґР»СЏ РїРµСЂРµРІРѕРґР°
 
-  // Далее идет поиск по OBJECT, поэтому эту функцию суем вперед и делаем пропуск хода
-  // так как тут тоже есть слово OBJECT.
-  // Правим баг с банками с супом
-  // исправлено в GOG версии
+  // Р”Р°Р»РµРµ РёРґРµС‚ РїРѕРёСЃРє РїРѕ OBJECT, РїРѕСЌС‚РѕРјСѓ СЌС‚Сѓ С„СѓРЅРєС†РёСЋ СЃСѓРµРј РІРїРµСЂРµРґ Рё РґРµР»Р°РµРј РїСЂРѕРїСѓСЃРє С…РѕРґР°
+  // С‚Р°Рє РєР°Рє С‚СѓС‚ С‚РѕР¶Рµ РµСЃС‚СЊ СЃР»РѕРІРѕ OBJECT.
+  // РџСЂР°РІРёРј Р±Р°Рі СЃ Р±Р°РЅРєР°РјРё СЃ СЃСѓРїРѕРј
+  // РёСЃРїСЂР°РІР»РµРЅРѕ РІ GOG РІРµСЂСЃРёРё
    pos1 := Pos('OBJECT "STORECU" "STORE_SOUP"', OriginalString);
    if pos1 <> 0 then
      begin
        StupidStr := False;
-       tmp1:='362 221 532 279 50 1  OBJECT "STORECU" "STORE_SOUP"        "" "" "" "" "" "STORE_SOUP_TEXT"        "F" "T" "" "банки_с_супом"';
+       tmp1:='362 221 532 279 50 1  OBJECT "STORECU" "STORE_SOUP"        "" "" "" "" "" "STORE_SOUP_TEXT"        "F" "T" "" "Р±Р°РЅРєРё_СЃ_СЃСѓРїРѕРј"';
        Writeln (frus, tmp1);
-       Readln (ftablerus, UTFstr1);  // делаем пропуск строки "банки_с_супом"
-       if (UTFstr1='') then Readln (ftablerus, UTFstr1);  // пропуск пустой строки
+       Readln (ftablerus, UTFstr1);  // РґРµР»Р°РµРј РїСЂРѕРїСѓСЃРє СЃС‚СЂРѕРєРё "Р±Р°РЅРєРё_СЃ_СЃСѓРїРѕРј"
+       if (UTFstr1='') then Readln (ftablerus, UTFstr1);  // РїСЂРѕРїСѓСЃРє РїСѓСЃС‚РѕР№ СЃС‚СЂРѕРєРё
        ANSIstr1 := Utf8ToAnsi(UTFstr1);
  //      Continue;
        goto a1;
      end;
 
-   // убираем комментарии у объекта ADULTMAGCU
+   // СѓР±РёСЂР°РµРј РєРѕРјРјРµРЅС‚Р°СЂРёРё Сѓ РѕР±СЉРµРєС‚Р° ADULTMAGCU
    pos1 := pos('ADULTMAGCU', OriginalString);
    if pos1 <> 0 then
     begin
      OriginalString := Trim(OriginalString);
-     Delete(OriginalString, 1, 3); // убираем в начале {//
+     Delete(OriginalString, 1, 3); // СѓР±РёСЂР°РµРј РІ РЅР°С‡Р°Р»Рµ {//
      goto a1;
     end;
 
-   // Ищем BOX и всё что за ним это фраза для перевода
+   // РС‰РµРј BOX Рё РІСЃС‘ С‡С‚Рѕ Р·Р° РЅРёРј СЌС‚Рѕ С„СЂР°Р·Р° РґР»СЏ РїРµСЂРµРІРѕРґР°
    pos1 := pos('"BOX', OriginalString);
    if pos1 <> 0 then
     for BoxNum:=1 to 4 do
      begin
       pos1:=Pos('"BOX' + inttostr(BoxNum), OriginalString);
-      if pos1 <> 0 then   // Нашли BOX
+      if pos1 <> 0 then   // РќР°С€Р»Рё BOX
        begin
-        StupidStr := False;    // уже не другая строка, обрабатываем и записываем сами
-        off1 := pos1 + 7;   // Смещаем указатель за "BOX1", 6 символов + 1 пробел
-        size1 := Length(OriginalString) - pos1 - 5; // Берем размер последней фразы
-        s2 := Copy(OriginalString, off1, size1); // Копируем фразу в конце строки с BOX1234
-        srus:=OriginalString;          // Делаю копию оригинальной строки
-        Delete (srus, off1, size1); // Удаляю английскую фразу
+        StupidStr := False;    // СѓР¶Рµ РЅРµ РґСЂСѓРіР°СЏ СЃС‚СЂРѕРєР°, РѕР±СЂР°Р±Р°С‚С‹РІР°РµРј Рё Р·Р°РїРёСЃС‹РІР°РµРј СЃР°РјРё
+        off1 := pos1 + 7;   // РЎРјРµС‰Р°РµРј СѓРєР°Р·Р°С‚РµР»СЊ Р·Р° "BOX1", 6 СЃРёРјРІРѕР»РѕРІ + 1 РїСЂРѕР±РµР»
+        size1 := Length(OriginalString) - pos1 - 5; // Р‘РµСЂРµРј СЂР°Р·РјРµСЂ РїРѕСЃР»РµРґРЅРµР№ С„СЂР°Р·С‹
+        s2 := Copy(OriginalString, off1, size1); // РљРѕРїРёСЂСѓРµРј С„СЂР°Р·Сѓ РІ РєРѕРЅС†Рµ СЃС‚СЂРѕРєРё СЃ BOX1234
+        srus:=OriginalString;          // Р”РµР»Р°СЋ РєРѕРїРёСЋ РѕСЂРёРіРёРЅР°Р»СЊРЅРѕР№ СЃС‚СЂРѕРєРё
+        Delete (srus, off1, size1); // РЈРґР°Р»СЏСЋ Р°РЅРіР»РёР№СЃРєСѓСЋ С„СЂР°Р·Сѓ
 
-        Readln (ftablerus, UTFstr1);   // Читаю русскую фразу
+        Readln (ftablerus, UTFstr1);   // Р§РёС‚Р°СЋ СЂСѓСЃСЃРєСѓСЋ С„СЂР°Р·Сѓ
         while (UTFstr1='') do
          Readln (ftablerus, UTFstr1);
 
@@ -203,44 +203,44 @@ begin
         while (ANSIstr1[1]='?') do
          Delete (ANSIstr1, 1, 1);
 
-        str1:=StringReplace(ANSIstr1, ' ', '_', [rfReplaceAll]); // Меняю все пробелы на подчерки
-        srus:=srus + str1; // Склеиваю уже русскую строку целиком
+        str1:=StringReplace(ANSIstr1, ' ', '_', [rfReplaceAll]); // РњРµРЅСЏСЋ РІСЃРµ РїСЂРѕР±РµР»С‹ РЅР° РїРѕРґС‡РµСЂРєРё
+        srus:=srus + str1; // РЎРєР»РµРёРІР°СЋ СѓР¶Рµ СЂСѓСЃСЃРєСѓСЋ СЃС‚СЂРѕРєСѓ С†РµР»РёРєРѕРј
 
-        srus:=Trim(srus);   // Обрезаем всю хрень
-        if BoxNum=1 then srus:=StringReplace(srus, '"BOX1', '"BOX4', [rfReplaceAll] ); // BOX1 слишком узкий квадрат
-        if BoxNum=2 then srus:=StringReplace(srus, '"BOX2', '"BOX4', [rfReplaceAll] ); // BOX2 слишком узкий квадрат, текст не влезат
+        srus:=Trim(srus);   // РћР±СЂРµР·Р°РµРј РІСЃСЋ С…СЂРµРЅСЊ
+        if BoxNum=1 then srus:=StringReplace(srus, '"BOX1', '"BOX4', [rfReplaceAll] ); // BOX1 СЃР»РёС€РєРѕРј СѓР·РєРёР№ РєРІР°РґСЂР°С‚
+        if BoxNum=2 then srus:=StringReplace(srus, '"BOX2', '"BOX4', [rfReplaceAll] ); // BOX2 СЃР»РёС€РєРѕРј СѓР·РєРёР№ РєРІР°РґСЂР°С‚, С‚РµРєСЃС‚ РЅРµ РІР»РµР·Р°С‚
 
-        // патчим строку с SCHLHL_LOCKER1_LTEXT на BOX4
+        // РїР°С‚С‡РёРј СЃС‚СЂРѕРєСѓ СЃ SCHLHL_LOCKER1_LTEXT РЅР° BOX4
         //if (pos('SCHLHL_LOCKER1_LTEXT', OriginalString) <> 0) then
 
 
-        Writeln (frus, srus); // Пишем в русский скрипт HARVEST.SCR.RUS
+        Writeln (frus, srus); // РџРёС€РµРј РІ СЂСѓСЃСЃРєРёР№ СЃРєСЂРёРїС‚ HARVEST.SCR.RUS
 
- //      s2:=Trim(StringReplace(s2, '_', ' ',[rfReplaceAll])); // Здесь заполняем descr.txt с англ фразами
- //      Writeln (fout, s2);                                   // тут пишем
-        goto a1;   // Нашли к примеру BOX2 и выходим из цикла
+ //      s2:=Trim(StringReplace(s2, '_', ' ',[rfReplaceAll])); // Р—РґРµСЃСЊ Р·Р°РїРѕР»РЅСЏРµРј descr.txt СЃ Р°РЅРіР» С„СЂР°Р·Р°РјРё
+ //      Writeln (fout, s2);                                   // С‚СѓС‚ РїРёС€РµРј
+        goto a1;   // РќР°С€Р»Рё Рє РїСЂРёРјРµСЂСѓ BOX2 Рё РІС‹С…РѕРґРёРј РёР· С†РёРєР»Р°
        end;
      end;
 
-   /////// Ищем OBJECT и берем конец фразы ///////////
+   /////// РС‰РµРј OBJECT Рё Р±РµСЂРµРј РєРѕРЅРµС† С„СЂР°Р·С‹ ///////////
    pos1:=Pos('OBJECT', OriginalString);
-   if pos1<>0 then   // Нашли OBJECT
+   if pos1<>0 then   // РќР°С€Р»Рё OBJECT
     begin
-     off1 := Length(OriginalString) - 1; // Начало смещения на 1 символ меньше, пропускаем кавычку " закрывающую
-     while (OriginalString[off1] <> '"') do Dec(off1); // Идем влево ищем кавычку открывающую
-     size1 := Length(OriginalString) - off1 + 1; // Размер последней фразы
-     s2 := Trim(Copy(OriginalString, off1, size1));   // Оригинал на англ фразы строки OBJECT, название предметов
-     // Пропускаем мусор
+     off1 := Length(OriginalString) - 1; // РќР°С‡Р°Р»Рѕ СЃРјРµС‰РµРЅРёСЏ РЅР° 1 СЃРёРјРІРѕР» РјРµРЅСЊС€Рµ, РїСЂРѕРїСѓСЃРєР°РµРј РєР°РІС‹С‡РєСѓ " Р·Р°РєСЂС‹РІР°СЋС‰СѓСЋ
+     while (OriginalString[off1] <> '"') do Dec(off1); // РРґРµРј РІР»РµРІРѕ РёС‰РµРј РєР°РІС‹С‡РєСѓ РѕС‚РєСЂС‹РІР°СЋС‰СѓСЋ
+     size1 := Length(OriginalString) - off1 + 1; // Р Р°Р·РјРµСЂ РїРѕСЃР»РµРґРЅРµР№ С„СЂР°Р·С‹
+     s2 := Trim(Copy(OriginalString, off1, size1));   // РћСЂРёРіРёРЅР°Р» РЅР° Р°РЅРіР» С„СЂР°Р·С‹ СЃС‚СЂРѕРєРё OBJECT, РЅР°Р·РІР°РЅРёРµ РїСЂРµРґРјРµС‚РѕРІ
+     // РџСЂРѕРїСѓСЃРєР°РµРј РјСѓСЃРѕСЂ
      //tmp1:=s2;
      //tmp1:=Trim(StringReplace(str1, '"', '',[rfReplaceAll]));
-     if ( (s2[1]='{') or (s2='"NULL_ID"') ) then goto a1; // выходим, мусор
+     if ( (s2[1]='{') or (s2='"NULL_ID"') ) then goto a1; // РІС‹С…РѕРґРёРј, РјСѓСЃРѕСЂ
 
-     // уже не другая строка
+     // СѓР¶Рµ РЅРµ РґСЂСѓРіР°СЏ СЃС‚СЂРѕРєР°
      StupidStr := False;
 
-     srus := OriginalString; // Делаю копию оригинальной строки
-     Delete (srus, off1, size1); // Удаляю английскую фразу
-     Readln (ftablerus, UTFstr1);   // Читаю русскую фразу
+     srus := OriginalString; // Р”РµР»Р°СЋ РєРѕРїРёСЋ РѕСЂРёРіРёРЅР°Р»СЊРЅРѕР№ СЃС‚СЂРѕРєРё
+     Delete (srus, off1, size1); // РЈРґР°Р»СЏСЋ Р°РЅРіР»РёР№СЃРєСѓСЋ С„СЂР°Р·Сѓ
+     Readln (ftablerus, UTFstr1);   // Р§РёС‚Р°СЋ СЂСѓСЃСЃРєСѓСЋ С„СЂР°Р·Сѓ
 
      while (UTFstr1='') do
       Readln (ftablerus, UTFstr1);
@@ -249,17 +249,17 @@ begin
 
      while (ANSIstr1[1]='?') do Delete (ANSIstr1, 1, 1);
 
-     str1:=StringReplace(ANSIstr1, ' ', '_',[rfReplaceAll]);  // Меняю все пробелы на подчерки
-     srus:=srus + str1;  // Склеиваю уже русскую строку целиком
-     srus:=Trim(srus);  // Обрезаем всю хрень
-     Writeln (frus, srus); // Пишем в русский скрипт HARVEST.SCR.RUS
+     str1:=StringReplace(ANSIstr1, ' ', '_',[rfReplaceAll]);  // РњРµРЅСЏСЋ РІСЃРµ РїСЂРѕР±РµР»С‹ РЅР° РїРѕРґС‡РµСЂРєРё
+     srus:=srus + str1;  // РЎРєР»РµРёРІР°СЋ СѓР¶Рµ СЂСѓСЃСЃРєСѓСЋ СЃС‚СЂРѕРєСѓ С†РµР»РёРєРѕРј
+     srus:=Trim(srus);  // РћР±СЂРµР·Р°РµРј РІСЃСЋ С…СЂРµРЅСЊ
+     Writeln (frus, srus); // РџРёС€РµРј РІ СЂСѓСЃСЃРєРёР№ СЃРєСЂРёРїС‚ HARVEST.SCR.RUS
 
-     goto a1; // выходим
- //    s2:=Trim(StringReplace(s2, '_', ' ',[rfReplaceAll])); // Здесь заполняем descr.txt с англ фразами
- //    Writeln (fout, s2);                                   // тут пишем
+     goto a1; // РІС‹С…РѕРґРёРј
+ //    s2:=Trim(StringReplace(s2, '_', ' ',[rfReplaceAll])); // Р—РґРµСЃСЊ Р·Р°РїРѕР»РЅСЏРµРј descr.txt СЃ Р°РЅРіР» С„СЂР°Р·Р°РјРё
+ //    Writeln (fout, s2);                                   // С‚СѓС‚ РїРёС€РµРј
     end;
 
-   // Ищем MAP_LOCATION и Название локации, заменяем на русский
+   // РС‰РµРј MAP_LOCATION Рё РќР°Р·РІР°РЅРёРµ Р»РѕРєР°С†РёРё, Р·Р°РјРµРЅСЏРµРј РЅР° СЂСѓСЃСЃРєРёР№
     pos1 := Pos('MAP_LOCATION', OriginalString);
     if pos1 <> 0 then
     begin
@@ -268,17 +268,17 @@ begin
       begin
        pos1:=Pos(map_stuff_eng[index], OriginalString);
        pos2:=Pos('MAP_LOCATION', OriginalString);
-       if ( (pos1<>0) and (pos2<>0) ) then   // Нашли название локации на карте
+       if ( (pos1<>0) and (pos2<>0) ) then   // РќР°С€Р»Рё РЅР°Р·РІР°РЅРёРµ Р»РѕРєР°С†РёРё РЅР° РєР°СЂС‚Рµ
          begin
            Delete (OriginalString, pos1, Length(map_stuff_eng[index]));
            Insert (map_stuff_rus[index], OriginalString, pos1);
-           goto a1; // выходим, запишем изменения
+           goto a1; // РІС‹С…РѕРґРёРј, Р·Р°РїРёС€РµРј РёР·РјРµРЅРµРЅРёСЏ
          end;
       end;
     end;
-     /// вот досюда, конец.
+     /// РІРѕС‚ РґРѕСЃСЋРґР°, РєРѕРЅРµС†.
 
-   // Ищем NPC с пробелом в начале и конце и имя персонажа в конце
+   // РС‰РµРј NPC СЃ РїСЂРѕР±РµР»РѕРј РІ РЅР°С‡Р°Р»Рµ Рё РєРѕРЅС†Рµ Рё РёРјСЏ РїРµСЂСЃРѕРЅР°Р¶Р° РІ РєРѕРЅС†Рµ
     pos1 := Pos(' NPC ', OriginalString);
     if pos1 <> 0 then
     begin
@@ -297,7 +297,7 @@ begin
          pos1 := Pos(npc_names_eng_cd3[index], OriginalString);
          tmp2 := npc_names_eng_cd3[index];
         end;
-       // обработать OriginalString на полное совпадение имени
+       // РѕР±СЂР°Р±РѕС‚Р°С‚СЊ OriginalString РЅР° РїРѕР»РЅРѕРµ СЃРѕРІРїР°РґРµРЅРёРµ РёРјРµРЅРё
        i := pos1;
        while (OriginalString[i - 1] <> '"') do dec(i);
        pos1 := i;
@@ -307,27 +307,27 @@ begin
 
        pos2:=Pos(' NPC ', OriginalString);
 
-       if ( (pos1<>0) and (pos2<>0) and (tmp1=tmp2) ) then   // Нашли название локации на карте
+       if ( (pos1<>0) and (pos2<>0) and (tmp1=tmp2) ) then   // РќР°С€Р»Рё РЅР°Р·РІР°РЅРёРµ Р»РѕРєР°С†РёРё РЅР° РєР°СЂС‚Рµ
          begin
            if cd = 12 then
             begin
              Delete (OriginalString, pos1, Length(npc_names_eng[index]));
              Insert (npc_names_rus[index], OriginalString, pos1);
-             goto a1; // выходим, запишем изменения
+             goto a1; // РІС‹С…РѕРґРёРј, Р·Р°РїРёС€РµРј РёР·РјРµРЅРµРЅРёСЏ
             end;
 
            if cd = 3 then
             begin
              Delete (OriginalString, pos1, Length(npc_names_eng_cd3[index]));
              Insert (npc_names_rus_cd3[index], OriginalString, pos1);
-             goto a1; // выходим, запишем изменения
+             goto a1; // РІС‹С…РѕРґРёРј, Р·Р°РїРёС€РµРј РёР·РјРµРЅРµРЅРёСЏ
             end;
          end;
       end;
     end;
 
-   // конец.
-   a1: if (StupidStr = True) then Writeln (frus, OriginalString); // Пишем строки скрипта, не интересующие нас
+   // РєРѕРЅРµС†.
+   a1: if (StupidStr = True) then Writeln (frus, OriginalString); // РџРёС€РµРј СЃС‚СЂРѕРєРё СЃРєСЂРёРїС‚Р°, РЅРµ РёРЅС‚РµСЂРµСЃСѓСЋС‰РёРµ РЅР°СЃ
   end;
 
  CloseFile (f);
@@ -349,7 +349,7 @@ end;
 Procedure FillFontArrayFromBuf;
 var i,j:longint;
 begin
- // при запуске заполняем двумерный массив
+ // РїСЂРё Р·Р°РїСѓСЃРєРµ Р·Р°РїРѕР»РЅСЏРµРј РґРІСѓРјРµСЂРЅС‹Р№ РјР°СЃСЃРёРІ
   for i:=0 to (font_h - 1) do
    for j:=0 to (abcLen - 1) do
     font_array[i,j]:=buf[dataStart + abcLen*i + j];
@@ -362,10 +362,10 @@ var
   byte1:byte;
 begin
 // form1.Memo1.Lines.Clear;
-// код под таблице cp1251
+// РєРѕРґ РїРѕРґ С‚Р°Р±Р»РёС†Рµ cp1251
  curpos:=Form1.fontnum.Position;
 
- // высота шрифта, ширина шрифта, стартовый адрес
+ // РІС‹СЃРѕС‚Р° С€СЂРёС„С‚Р°, С€РёСЂРёРЅР° С€СЂРёС„С‚Р°, СЃС‚Р°СЂС‚РѕРІС‹Р№ Р°РґСЂРµСЃ
  font_h := buf[dataStart - 8] - 1;
  font_w := font_width[curpos];
  start := font_start[curpos];
@@ -381,7 +381,7 @@ begin
  Form1.img3.Canvas.Refresh;
  Form1.img2.Canvas.Refresh;
 
-// ширина всего шрифта
+// С€РёСЂРёРЅР° РІСЃРµРіРѕ С€СЂРёС„С‚Р°
  abcLen:=buf[dataStart - 12 + 0] + 256*buf[dataStart - 12 + 1] + 256*256*buf[dataStart - 12 + 2] + 256*256*256*buf[dataStart - 12 + 3];
 
  Bitmap := TBitmap.Create;
@@ -423,13 +423,13 @@ if hpal <> 0 then
  form1.img1.Width:=form1.zoom.Position * font_width[curpos];
  Form1.img1.Canvas.Refresh;
 
- form1.Memo1.Lines.Add('Ширина шрифта=' + IntToStr(font_w));
- form1.Memo1.Lines.Add('Высота шрифта=' + IntToStr(font_h));
+ form1.Memo1.Lines.Add('РЁРёСЂРёРЅР° С€СЂРёС„С‚Р°=' + IntToStr(font_w));
+ form1.Memo1.Lines.Add('Р’С‹СЃРѕС‚Р° С€СЂРёС„С‚Р°=' + IntToStr(font_h));
 
  form1.seSymWidth.value:=font_w;
 
- form1.Memo1.Lines.Add('Ширина шрифта полная=' + IntToStr(abcLen));
- form1.Memo1.Lines.Add('Номер символа=' + IntToStr(Form1.fontnum.Position+1));
+ form1.Memo1.Lines.Add('РЁРёСЂРёРЅР° С€СЂРёС„С‚Р° РїРѕР»РЅР°СЏ=' + IntToStr(abcLen));
+ form1.Memo1.Lines.Add('РќРѕРјРµСЂ СЃРёРјРІРѕР»Р°=' + IntToStr(Form1.fontnum.Position+1));
 
  for i:=0 to (font_h - 1) do
   for j:=0 to (abcLen - 1) do
@@ -460,17 +460,17 @@ begin
  if fontnum=8 then fname:='.\files\font\TYPEFONT.CFT';
 
 curFile:=fname;
-// грузим шрифт в память, в буфер
-FileMode := fmShareDenyNone; // права доступа отключить ругань
+// РіСЂСѓР·РёРј С€СЂРёС„С‚ РІ РїР°РјСЏС‚СЊ, РІ Р±СѓС„РµСЂ
+FileMode := fmShareDenyNone; // РїСЂР°РІР° РґРѕСЃС‚СѓРїР° РѕС‚РєР»СЋС‡РёС‚СЊ СЂСѓРіР°РЅСЊ
 
 AssignFile(fin, fname);
 Reset(fin);
 GlobalFileSize := FileSize(fin);
-GetMem(Buf, GlobalFileSize * 2 ); // выделяем память буфферу
+GetMem(Buf, GlobalFileSize * 2 ); // РІС‹РґРµР»СЏРµРј РїР°РјСЏС‚СЊ Р±СѓС„С„РµСЂСѓ
 for i:=0 to (GlobalFileSize*2-1) do
  buf[i]:=0;
 
-Blockread(fin, Buf[0], GlobalFileSize);  // читаем весь файл туда
+Blockread(fin, Buf[0], GlobalFileSize);  // С‡РёС‚Р°РµРј РІРµСЃСЊ С„Р°Р№Р» С‚СѓРґР°
 CloseFile (fin);
 // INVHELP.PAL
 
@@ -478,8 +478,8 @@ fname:='.\files\INVHELP.PAL';
 AssignFile(fin, fname);
 Reset(fin);
 fsize:=FileSize(fin);
-GetMem(buf_pal, FSize); // выделяем память буфферу
-Blockread(fin, buf_pal[0], FSize);  // читаем весь файл туда
+GetMem(buf_pal, FSize); // РІС‹РґРµР»СЏРµРј РїР°РјСЏС‚СЊ Р±СѓС„С„РµСЂСѓ
+Blockread(fin, buf_pal[0], FSize);  // С‡РёС‚Р°РµРј РІРµСЃСЊ С„Р°Р№Р» С‚СѓРґР°
 CloseFile (fin);
 ///////////////////////////
 StartOffsetOfOffset:=$44; // 44h
@@ -496,23 +496,23 @@ datastart:=$0454;    // 0454h
     inc (j);
  until (i>512);
 
-// form1.Memo1.Lines.Add('Сумма ширин = ' + IntToStr(sum));
-// Form1.Memo1.Lines.Add('Сумма нулей = ' + IntToStr(j));
-// Form1.Memo1.Lines.Add('Сдвиг на след строку, сумма = ' + IntToStr(sum + j) );
+// form1.Memo1.Lines.Add('РЎСѓРјРјР° С€РёСЂРёРЅ = ' + IntToStr(sum));
+// Form1.Memo1.Lines.Add('РЎСѓРјРјР° РЅСѓР»РµР№ = ' + IntToStr(j));
+// Form1.Memo1.Lines.Add('РЎРґРІРёРі РЅР° СЃР»РµРґ СЃС‚СЂРѕРєСѓ, СЃСѓРјРјР° = ' + IntToStr(sum + j) );
 
  ShowSymbol;
  //ScrollBar2Change(Sender);
  FillFontArrayFromBuf;
 end;
 
-// Пишем DWORD в буфер BUF
-// num - число для записи
-// off - смещение в блоке
+// РџРёС€РµРј DWORD РІ Р±СѓС„РµСЂ BUF
+// num - С‡РёСЃР»Рѕ РґР»СЏ Р·Р°РїРёСЃРё
+// off - СЃРјРµС‰РµРЅРёРµ РІ Р±Р»РѕРєРµ
 procedure WriteDWord2BUF (num, off:LongInt);
 var
   byte0, byte1, byte2, byte3:Byte;
 begin
- // Пишем смещение блока
+ // РџРёС€РµРј СЃРјРµС‰РµРЅРёРµ Р±Р»РѕРєР°
   BYTE3:=Trunc(num/(256*256*256));
   BYTE2:=Trunc ((num - BYTE3 *256*256*256)/(256*256));
   BYTE1:=Trunc ((num - BYTE2*256*256 - BYTE3*256*256*256)/(256));
@@ -528,7 +528,7 @@ procedure writeDWORD (num, offset:LongInt; var buftmp:PByteArray);
 var
   byte0, byte1, byte2, byte3:Byte;
 begin
- // Пишем смещение блока
+ // РџРёС€РµРј СЃРјРµС‰РµРЅРёРµ Р±Р»РѕРєР°
   BYTE3:=Trunc(num/(256*256*256));
   BYTE2:=Trunc ((num - BYTE3 *256*256*256)/(256*256));
   BYTE1:=Trunc ((num - BYTE2*256*256 - BYTE3*256*256*256)/(256));
@@ -544,7 +544,7 @@ procedure writeWORD (num, offset:LongInt; var buftmp:PByteArray);
 var
   byte0, byte1:Byte;
 begin
- // Пишем смещение блока
+ // РџРёС€РµРј СЃРјРµС‰РµРЅРёРµ Р±Р»РѕРєР°
  BYTE1:=Trunc (num / 256);
  BYTE0:=num - BYTE1*256;
 
@@ -560,12 +560,12 @@ var
 fin:file of Byte;
 globalfilesize:LongInt;
 begin
-FileMode := fmShareDenyNone; // права доступа отключить ругань
+FileMode := fmShareDenyNone; // РїСЂР°РІР° РґРѕСЃС‚СѓРїР° РѕС‚РєР»СЋС‡РёС‚СЊ СЂСѓРіР°РЅСЊ
 AssignFile(fin, fname);
 Reset(fin);
 GlobalFileSize := FileSize(fin);
-GetMem(Buf, GlobalFileSize); // выделяем память буфферу
-Blockread(fin, Buf[0], GlobalFileSize);  // читаем весь файл туда
+GetMem(Buf, GlobalFileSize); // РІС‹РґРµР»СЏРµРј РїР°РјСЏС‚СЊ Р±СѓС„С„РµСЂСѓ
+Blockread(fin, Buf[0], GlobalFileSize);  // С‡РёС‚Р°РµРј РІРµСЃСЊ С„Р°Р№Р» С‚СѓРґР°
 CloseFile (fin);
 for i:=0 to (GlobalFileSize - 1) do
  begin
@@ -575,9 +575,9 @@ for i:=0 to (GlobalFileSize - 1) do
 
 AssignFile(fin, fname + '.decrypted');
 Rewrite(fin);
-BlockWrite (fin, Buf[0], GlobalFileSize);  // читаем весь файл туда
+BlockWrite (fin, Buf[0], GlobalFileSize);  // С‡РёС‚Р°РµРј РІРµСЃСЊ С„Р°Р№Р» С‚СѓРґР°
 CloseFile (fin);
-FreeMem(Buf); // освободить, закрыть и уйти.
+FreeMem(Buf); // РѕСЃРІРѕР±РѕРґРёС‚СЊ, Р·Р°РєСЂС‹С‚СЊ Рё СѓР№С‚Рё.
 
 end;
 
@@ -597,10 +597,10 @@ var
 ANSIstr1 : ansistring;
 UTFstr1  : UTF8String;
 begin
- // 3 файла
- // DIALOGUE.IDX.CD1.TXT - 1265 строк
- // DIALOGUE.IDX.CD1.TXT-2 - 419 строк
- // DIALOGUE.IDX.CD1.TXT-3 - 849 строк
+ // 3 С„Р°Р№Р»Р°
+ // DIALOGUE.IDX.CD1.TXT - 1265 СЃС‚СЂРѕРє
+ // DIALOGUE.IDX.CD1.TXT-2 - 419 СЃС‚СЂРѕРє
+ // DIALOGUE.IDX.CD1.TXT-3 - 849 СЃС‚СЂРѕРє
   cou1:=0;
   AssignFile (f1, '.\benoid\DIALOGUE.IDX.CD1.TXT.txt');
   Reset(f1);
@@ -668,7 +668,7 @@ ANSIstr1 : ansistring;
 UTFstr1  : UTF8String;
 begin
   ReadInitFont (Form1.FontChoose.Position);
-  // FillTranslateTable, читаем заполняем оригинал
+  // FillTranslateTable, С‡РёС‚Р°РµРј Р·Р°РїРѕР»РЅСЏРµРј РѕСЂРёРіРёРЅР°Р»
   AssignFile (f1, '.\files\cd12\DIALOGUE.IDX.decrypted');
   Reset(f1);
   cou1:=0;
@@ -683,17 +683,17 @@ begin
   Form1.ScrollBar4.Min:=0;
   Form1.ScrollBar4.Max:=Trunc((cou1 - 1)/2);
 
- // 3 файла
- // DIALOGUE.IDX.CD1.TXT - 1265 строк
- // DIALOGUE.IDX.CD1.TXT-2 - 419 строк
- // DIALOGUE.IDX.CD1.TXT-3 - 849 строк
+ // 3 С„Р°Р№Р»Р°
+ // DIALOGUE.IDX.CD1.TXT - 1265 СЃС‚СЂРѕРє
+ // DIALOGUE.IDX.CD1.TXT-2 - 419 СЃС‚СЂРѕРє
+ // DIALOGUE.IDX.CD1.TXT-3 - 849 СЃС‚СЂРѕРє
   FillTranslateStr;
 
   Form1.ScrollBar5.Min := 0;
   Form1.ScrollBar5.Position := 0;
 
- // Читаем создаем массив русских имен
- AssignFile (f1, '.\benoid\Имена_персонажей,_CD1,_2_(для_единого_написания).txt');
+ // Р§РёС‚Р°РµРј СЃРѕР·РґР°РµРј РјР°СЃСЃРёРІ СЂСѓСЃСЃРєРёС… РёРјРµРЅ
+ AssignFile (f1, '.\benoid\РРјРµРЅР°_РїРµСЂСЃРѕРЅР°Р¶РµР№,_CD1,_2_(РґР»СЏ_РµРґРёРЅРѕРіРѕ_РЅР°РїРёСЃР°РЅРёСЏ).txt');
  Reset (f1);
  for i:=0 to 30 do
   begin
@@ -702,13 +702,13 @@ begin
    ANSIstr1 := Utf8ToAnsi(UTFstr1);
    ANSIstr1 := trim (ANSIstr1);
    while (ANSIstr1[1]='?') do Delete (ANSIstr1, 1, 1);
-   ANSIstr1:=StringReplace(ANSIstr1, '"', '',[rfReplaceAll]);  // убираем кавычки
+   ANSIstr1:=StringReplace(ANSIstr1, '"', '',[rfReplaceAll]);  // СѓР±РёСЂР°РµРј РєР°РІС‹С‡РєРё
 
    npc_names_rus[i] := ANSIstr1;
   end;
  CloseFile (f1);
 
- AssignFile (f1, '.\benoid\Имена_персонажей,_CD3_(для_единого_написания).txt');
+ AssignFile (f1, '.\benoid\РРјРµРЅР°_РїРµСЂСЃРѕРЅР°Р¶РµР№,_CD3_(РґР»СЏ_РµРґРёРЅРѕРіРѕ_РЅР°РїРёСЃР°РЅРёСЏ).txt');
  Reset (f1);
  for i:=0 to 31 do
   begin
@@ -717,12 +717,12 @@ begin
    ANSIstr1 := Utf8ToAnsi(UTFstr1);
    ANSIstr1 := trim (ANSIstr1);
    while (ANSIstr1[1]='?') do Delete (ANSIstr1, 1, 1);
-   ANSIstr1:=StringReplace(ANSIstr1, '"', '',[rfReplaceAll]);  // убираем кавычки
+   ANSIstr1:=StringReplace(ANSIstr1, '"', '',[rfReplaceAll]);  // СѓР±РёСЂР°РµРј РєР°РІС‹С‡РєРё
    npc_names_rus_cd3[i] := ANSIstr1;
   end;
  CloseFile (f1);
 
- AssignFile (f1, '.\benoid\Map_(Названия_локаций_на_карте).txt');
+ AssignFile (f1, '.\benoid\Map_(РќР°Р·РІР°РЅРёСЏ_Р»РѕРєР°С†РёР№_РЅР°_РєР°СЂС‚Рµ).txt');
  Reset (f1);
  for i:=0 to 25 do
   begin
@@ -731,7 +731,7 @@ begin
    ANSIstr1 := Utf8ToAnsi(UTFstr1);
    ANSIstr1 := trim (ANSIstr1);
    while (ANSIstr1[1]='?') do Delete (ANSIstr1, 1, 1);
-   ANSIstr1:=StringReplace(ANSIstr1, '"', '',[rfReplaceAll]);  // убираем кавычки
+   ANSIstr1:=StringReplace(ANSIstr1, '"', '',[rfReplaceAll]);  // СѓР±РёСЂР°РµРј РєР°РІС‹С‡РєРё
    map_stuff_rus[i] := ANSIstr1;
   end;
  CloseFile (f1);
@@ -742,7 +742,7 @@ end;
 
 procedure TForm1.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
-FreeMem(Buf); // освободить, закрыть и уйти.
+FreeMem(Buf); // РѕСЃРІРѕР±РѕРґРёС‚СЊ, Р·Р°РєСЂС‹С‚СЊ Рё СѓР№С‚Рё.
 FreeMem(buf_pal);
 FreeMem(pal);
 end;
@@ -773,7 +773,7 @@ symnum:=form1.fontnum.Position;
 my:=Trunc(Y/ky);
 mx:=Trunc(X/kx) + font_start[symnum];
 
-// Синий цвет фона - это байт 0, белый - FFh
+// РЎРёРЅРёР№ С†РІРµС‚ С„РѕРЅР° - СЌС‚Рѕ Р±Р°Р№С‚ 0, Р±РµР»С‹Р№ - FFh
 index:=form1.ColorChoose.Position;
 if (Button = mbRight) then index:=0;
 
@@ -809,7 +809,7 @@ end;
 
 procedure TForm1.SaveFontClick(Sender: TObject);
 var
- delta:Integer; // насколько увеличиваем-уменьшаем ширину
+ delta:Integer; // РЅР°СЃРєРѕР»СЊРєРѕ СѓРІРµР»РёС‡РёРІР°РµРј-СѓРјРµРЅСЊС€Р°РµРј С€РёСЂРёРЅСѓ
  i,j,k, new_off, curcol, GamePalColor:LongInt;
  symnum, r,g,b, kx, ky, w:integer;
  byte0, byte1:byte;
@@ -820,7 +820,7 @@ begin
  if delta>0 then delta:=1;
  if delta<0 then delta:=-1;
 
-  // Если это был пустой символ, то смещение новое создать надо и ширину ему дать
+  // Р•СЃР»Рё СЌС‚Рѕ Р±С‹Р» РїСѓСЃС‚РѕР№ СЃРёРјРІРѕР», С‚Рѕ СЃРјРµС‰РµРЅРёРµ РЅРѕРІРѕРµ СЃРѕР·РґР°С‚СЊ РЅР°РґРѕ Рё С€РёСЂРёРЅСѓ РµРјСѓ РґР°С‚СЊ
   //
   if ( (font_start[symnum]=0) and (font_width[symnum]=0) ) then
    begin
@@ -831,12 +831,12 @@ begin
 
     inc (abcLen, delta);
     WriteDWord2BUF(abcLen, (dataStart - 12));
-    // разделить блоки, заполнить новый символ и выйти
+    // СЂР°Р·РґРµР»РёС‚СЊ Р±Р»РѕРєРё, Р·Р°РїРѕР»РЅРёС‚СЊ РЅРѕРІС‹Р№ СЃРёРјРІРѕР» Рё РІС‹Р№С‚Рё
 
-    // Новое смещение для нового символа
+    // РќРѕРІРѕРµ СЃРјРµС‰РµРЅРёРµ РґР»СЏ РЅРѕРІРѕРіРѕ СЃРёРјРІРѕР»Р°
     new_off:=font_start[symnum];
-    BYTE0:=Trunc(new_off / 256);     // старший байт
-    BYTE1:=new_off - BYTE0 * 256;    // младший байт
+    BYTE0:=Trunc(new_off / 256);     // СЃС‚Р°СЂС€РёР№ Р±Р°Р№С‚
+    BYTE1:=new_off - BYTE0 * 256;    // РјР»Р°РґС€РёР№ Р±Р°Р№С‚
     buf[StartOffsetOfOffset + symnum*2 + 0]:=byte1;
     buf[StartOffsetOfOffset + symnum*2 + 1]:=byte0;
 
@@ -846,7 +846,7 @@ begin
     Exit;
    end;
 
-  // Сдвигаем всё на дельту
+  // РЎРґРІРёРіР°РµРј РІСЃС‘ РЅР° РґРµР»СЊС‚Сѓ
    for i:=0 to (Abs(delta) - 1) do
     for k:=0 to (font_h - 1) do
      for j:=abcLen downto ( (font_start[symnum]) + font_w ) do
@@ -855,18 +855,18 @@ begin
        if (delta<0) then font_array[k, font_start[symnum] + font_w - 1 + abclen - j + i]:=font_array[k, font_start[symnum]+font_w-1 + abclen - j + i + 1];
       end;
 
- // Увеличение ширины
+ // РЈРІРµР»РёС‡РµРЅРёРµ С€РёСЂРёРЅС‹
  if (delta>0) then
   begin
-    //Надо почистить новое место от сдвинутых чисел
+    //РќР°РґРѕ РїРѕС‡РёСЃС‚РёС‚СЊ РЅРѕРІРѕРµ РјРµСЃС‚Рѕ РѕС‚ СЃРґРІРёРЅСѓС‚С‹С… С‡РёСЃРµР»
     for i:=0 to (font_h - 1) do
      for j:=0 to (delta - 1) do
        font_array[i,j + font_start[symnum] + font_w]:=0;
   end;
 
-    // Скорректировать нач смещения следующих символов
-    // font_start и buf
-    // Все смещения вперемежку, поэтому надо смотреть чтобы было больше текущего
+    // РЎРєРѕСЂСЂРµРєС‚РёСЂРѕРІР°С‚СЊ РЅР°С‡ СЃРјРµС‰РµРЅРёСЏ СЃР»РµРґСѓСЋС‰РёС… СЃРёРјРІРѕР»РѕРІ
+    // font_start Рё buf
+    // Р’СЃРµ СЃРјРµС‰РµРЅРёСЏ РІРїРµСЂРµРјРµР¶РєСѓ, РїРѕСЌС‚РѕРјСѓ РЅР°РґРѕ СЃРјРѕС‚СЂРµС‚СЊ С‡С‚РѕР±С‹ Р±С‹Р»Рѕ Р±РѕР»СЊС€Рµ С‚РµРєСѓС‰РµРіРѕ
    for i:=0 to 255 do
      begin
       if (font_start[i] > font_start[symnum]) then
@@ -874,44 +874,44 @@ begin
         new_off := font_start[i] + delta;
         font_start[i] := new_off;
 
-        BYTE0 := Trunc(new_off / 256);  // старший байт
-        BYTE1 := new_off - BYTE0 * 256;    // младший байт
+        BYTE0 := Trunc(new_off / 256);  // СЃС‚Р°СЂС€РёР№ Р±Р°Р№С‚
+        BYTE1 := new_off - BYTE0 * 256;    // РјР»Р°РґС€РёР№ Р±Р°Р№С‚
 
         buf[StartOffsetOfOffset + i*2 + 0] := byte1;
         buf[StartOffsetOfOffset + i*2 + 1] := byte0;
        end;
      end;
 
- // корректируем общую ширину шрифта
+ // РєРѕСЂСЂРµРєС‚РёСЂСѓРµРј РѕР±С‰СѓСЋ С€РёСЂРёРЅСѓ С€СЂРёС„С‚Р°
  abcLen:=abcLen + delta;
 
- // возвращаем в буфер
+ // РІРѕР·РІСЂР°С‰Р°РµРј РІ Р±СѓС„РµСЂ
  WriteDWord2BUF(abcLen, (dataStart - 12));
 
- // Корректируем ширины
+ // РљРѕСЂСЂРµРєС‚РёСЂСѓРµРј С€РёСЂРёРЅС‹
  font_w:=font_w + delta;
  font_width[symnum]:=font_width[symnum] + delta;
  buf[StartOffsetWidth + symnum*2]:=buf[StartOffsetWidth + symnum*2] + delta;
 
-  // Нужно развернуть font_array в линию buf с учетом новой ширины общей и высоты
+  // РќСѓР¶РЅРѕ СЂР°Р·РІРµСЂРЅСѓС‚СЊ font_array РІ Р»РёРЅРёСЋ buf СЃ СѓС‡РµС‚РѕРј РЅРѕРІРѕР№ С€РёСЂРёРЅС‹ РѕР±С‰РµР№ Рё РІС‹СЃРѕС‚С‹
   for i:=0 to (font_h - 1) do
    for j:=0 to (abcLen - 1) do
      buf[dataStart + abcLen*i + j]:=font_array[i, j];
 
-  // Корректируем длину глобального файла
+  // РљРѕСЂСЂРµРєС‚РёСЂСѓРµРј РґР»РёРЅСѓ РіР»РѕР±Р°Р»СЊРЅРѕРіРѕ С„Р°Р№Р»Р°
   // GlobalFileSize += font_h * abs(delta);
   GlobalFileSize := GlobalFileSize + font_h * delta;
 
-  // удаляем .\files\font\
+  // СѓРґР°Р»СЏРµРј .\files\font\
   if (curFile[1]='.') then Delete (curFile, 1, Length('.\files\font\'));
   assignfile (f, '.\temp\' + curfile);
   Rewrite (f);
-  BlockWrite(f, Buf[0], GlobalFileSize);  // читаем весь файл туда
+  BlockWrite(f, Buf[0], GlobalFileSize);  // С‡РёС‚Р°РµРј РІРµСЃСЊ С„Р°Р№Р» С‚СѓРґР°
   CloseFile (f);
 
   ShowSymbol;
 
-  form1.Memo1.Lines.Add('размер файла =' + IntToStr(GlobalFileSize));
+  form1.Memo1.Lines.Add('СЂР°Р·РјРµСЂ С„Р°Р№Р»Р° =' + IntToStr(GlobalFileSize));
   form1.Memo1.Lines.Add('ok');
 end;
 
@@ -941,15 +941,15 @@ f: file of Byte;
 i,GFileSize:LongInt;
 s:string;
 begin
-// читаем
-FileMode := fmShareDenyNone; // права доступа отключить ругань
+// С‡РёС‚Р°РµРј
+FileMode := fmShareDenyNone; // РїСЂР°РІР° РґРѕСЃС‚СѓРїР° РѕС‚РєР»СЋС‡РёС‚СЊ СЂСѓРіР°РЅСЊ
 AssignFile(f, fname );
 Reset(f);
 GFileSize:=filesize(f);
-GetMem(buf_loc, GFileSize ); // выделяем память буфферу, смещение + 2х2 байта разрешение
-Blockread(f, buf_loc[0], GFileSize );  // читаем весь файл туда
+GetMem(buf_loc, GFileSize ); // РІС‹РґРµР»СЏРµРј РїР°РјСЏС‚СЊ Р±СѓС„С„РµСЂСѓ, СЃРјРµС‰РµРЅРёРµ + 2С…2 Р±Р°Р№С‚Р° СЂР°Р·СЂРµС€РµРЅРёРµ
+Blockread(f, buf_loc[0], GFileSize );  // С‡РёС‚Р°РµРј РІРµСЃСЊ С„Р°Р№Р» С‚СѓРґР°
 CloseFile (f);
-// Зашифровываем обратно, пропуская коды 10, 13
+// Р—Р°С€РёС„СЂРѕРІС‹РІР°РµРј РѕР±СЂР°С‚РЅРѕ, РїСЂРѕРїСѓСЃРєР°СЏ РєРѕРґС‹ 10, 13
 for i:=0 to (GFileSize - 1) do
  begin
   if ( (buf_loc[i]=$0A) or (buf_loc[i]=$0D) ) then continue;
@@ -960,7 +960,7 @@ if fname='.\temp\dialogue.idx.final' then s:='.\rus\DIALOGUE.IDX';
 if fname='.\temp\_cd12_HARVEST.SCR' then s:='.\rus\harvest.scr';
 if fname='.\temp\_cd3_harvest.scr' then s:='.\rus\cd3\harvest.scr';
 
-// пишем всё в каталог с игрой
+// РїРёС€РµРј РІСЃС‘ РІ РєР°С‚Р°Р»РѕРі СЃ РёРіСЂРѕР№
 AssignFile(f, s);
 Rewrite (f);
 BlockWrite(f, buf_loc[0], GFileSize );
@@ -1015,7 +1015,7 @@ begin
 OriginalStr[Form1.ScrollBar4.position*2 + 1] := TranslateStr[Form1.ScrollBar5.position];
 if chk2.Checked then
  begin
-   // Сбрасываем DIALOGUE.IDX ----------------------------------
+   // РЎР±СЂР°СЃС‹РІР°РµРј DIALOGUE.IDX ----------------------------------
    for i := 0 to Form1.ScrollBar4.Max do
     OriginalStr[i*2 + 1] := TranslateStr[i];
 
@@ -1026,24 +1026,24 @@ if chk2.Checked then
      Writeln (f, OriginalStr[i]);
 
    CloseFile (f);
-   // Сбрасываем DIALOGUE.IDX ----------------------------------
+   // РЎР±СЂР°СЃС‹РІР°РµРј DIALOGUE.IDX ----------------------------------
 
-  // Обрабатываем cd 1,2 harvest.scr
+  // РћР±СЂР°Р±Р°С‚С‹РІР°РµРј cd 1,2 harvest.scr
   s_1 := '.\files\cd12\HARVEST.SCR.decrypted';
   s_2 := '.\temp\_cd12_HARVEST.SCR';
-  s_3 := '.\benoid\Объекты_и_описания_оных_(cd1,_cd2).txt';
+  s_3 := '.\benoid\РћР±СЉРµРєС‚С‹_Рё_РѕРїРёСЃР°РЅРёСЏ_РѕРЅС‹С…_(cd1,_cd2).txt';
   cd := 12;
   TranslateSCR (s_1, s_2, s_3, cd);
 
-  // Обрабатываем cd3 harvest.scr
+  // РћР±СЂР°Р±Р°С‚С‹РІР°РµРј cd3 harvest.scr
   s_1 := '.\files\cd3\harvest.scr.decrypted';
   s_2 := '.\temp\_cd3_harvest.scr';
-  s_3 := '.\benoid\Объекты_и_описания_оных_(cd3).txt';
+  s_3 := '.\benoid\РћР±СЉРµРєС‚С‹_Рё_РѕРїРёСЃР°РЅРёСЏ_РѕРЅС‹С…_(cd3).txt';
   cd := 3;
   TranslateSCR (s_1, s_2, s_3, cd);
 
-  // Создаем dialog.rsp (Ключевые фразы диалогов)
-  AssignFile (f, '.\benoid\dialog.rsp_(Ключевые_фразы_диалогов).txt');
+  // РЎРѕР·РґР°РµРј dialog.rsp (РљР»СЋС‡РµРІС‹Рµ С„СЂР°Р·С‹ РґРёР°Р»РѕРіРѕРІ)
+  AssignFile (f, '.\benoid\dialog.rsp_(РљР»СЋС‡РµРІС‹Рµ_С„СЂР°Р·С‹_РґРёР°Р»РѕРіРѕРІ).txt');
   AssignFile (fout, '.\rus\dialog.rsp');
 
   Reset (f);
@@ -1058,7 +1058,7 @@ if chk2.Checked then
 
     while (ANSIstr1[1]='?') do Delete (ANSIstr1, 1, 1);
 
-    // Если оставить writeln, то в конце dialog.rsp добавляется 0Dh, 0Ah, а их не должно быть
+    // Р•СЃР»Рё РѕСЃС‚Р°РІРёС‚СЊ writeln, С‚Рѕ РІ РєРѕРЅС†Рµ dialog.rsp РґРѕР±Р°РІР»СЏРµС‚СЃСЏ 0Dh, 0Ah, Р° РёС… РЅРµ РґРѕР»Р¶РЅРѕ Р±С‹С‚СЊ
     if (i=782) then
      begin
       write (fout, AnsiStr1);
@@ -1079,7 +1079,7 @@ if chk2.Checked then
   Reset (f);
   Rewrite (fout);
 
-  // В списке 24 совета
+  // Р’ СЃРїРёСЃРєРµ 24 СЃРѕРІРµС‚Р°
   for i := 0 to 23 do
    begin
     Readln (f, UTFstr1);
@@ -1094,7 +1094,7 @@ if chk2.Checked then
   CloseFile (fout);
   // ADJHEAD.RCS -----------------------------------------------------
 
-  // Патчим harvest.scr для CD1-2
+  // РџР°С‚С‡РёРј harvest.scr РґР»СЏ CD1-2
   k := 1;
   AssignFile (f, '.\temp\_cd12_HARVEST.SCR');
   Reset (f);
@@ -1109,26 +1109,26 @@ if chk2.Checked then
   CloseFile (f);
   DeleteFile('.\temp\_cd12_HARVEST.SCR');
 
-  // патчим
+  // РїР°С‚С‡РёРј
   tmpStr[1619] := '172 293 199 319 74 1 OBJECT "BARB_OUT" "BARB_CLOSED" "\GRAPHIC\MASKS\BAR2CLOS.BM" "" "" "" "" "" "F" "F"  "" "NULL_ID"';
   tmpStr[2854] := '289 252 331 290 89 1 OBJECT "DNAEXT" "DNA_CLOSED" "\GRAPHIC\MASKS\EDNACLOS.BM" "" "" "" "" "" "F" "F" "" "NULL_ID"';
   tmpStr[6699] := '501 105 50  5 ANIM "TV_FSTD" "\GRAPHIC\ROOMANIM\APPLAUSE.ABM" "APPLAUSE" "T" "T" "T" "F" "F" "F"';
-  tmpStr[5]    := '299 0 0 0 2 1 OBJECT "NULL_ID" "EXIT_BM"  "\GRAPHIC\OTHER\EXITSIGN.BM" "" "" "" ""  "" "F" "T" "" "выход"';
+  tmpStr[5]    := '299 0 0 0 2 1 OBJECT "NULL_ID" "EXIT_BM"  "\GRAPHIC\OTHER\EXITSIGN.BM" "" "" "" ""  "" "F" "T" "" "РІС‹С…РѕРґ"';
   tmpStr[3887] := '257 311 284 328 89 0 OBJECT "STORE_OUT" "STORE_CLOSED" "\GRAPHIC\MASKS\GENCLOSE.BM"   "" "" "" "" "" "F" "F" "" "NULL_ID"';
   tmpStr[5469] := '305 273 331 290 89 1 OBJECT "POST" "POST_CLOSED" "\GRAPHIC\MASKS\POSTCLOS.BM" "" "" "" "" "" "F" "F" "" "NULL_ID"';
   tmpStr[2932] := '102 78 85 15 ANIM "DNAEXT" "\GRAPHIC\ROOMANIM\EDNASIGN.ABM" "DNAEXT_SIGN"      "T" "T" "T" "F" "F" "F"';
   tmpStr[4180] := '413 332 89 15 ANIM "HOTEL" "\GRAPHIC\ROOMANIM\HOTLSIGN.ABM" "HOTLSIGN" "T" "T" "T" "F" "F" "F"';
   tmpStr[3964] := '270 284 54 15 ANIM "STORE_IN" "\GRAPHIC\ROOMANIM\COPIER.ABM"   "COPIER"   "F" "T" "F" "F" "T" "F"'; 
 
-  // записываем назад изменения
+  // Р·Р°РїРёСЃС‹РІР°РµРј РЅР°Р·Р°Рґ РёР·РјРµРЅРµРЅРёСЏ
   AssignFile (f, '.\rus\cd12\harvest.scr');
   Rewrite (f);
   for i := 0 to (k-1) do
    Writeln (f, tmpstr[i]);
   CloseFile (f);
-  // Конец патча harvest.scr для CD1-2
+  // РљРѕРЅРµС† РїР°С‚С‡Р° harvest.scr РґР»СЏ CD1-2
 
-  // Патчим harvest.scr для CD3
+  // РџР°С‚С‡РёРј harvest.scr РґР»СЏ CD3
     k := 1;
   AssignFile (f, '.\temp\_cd3_HARVEST.SCR');
   Reset (f);
@@ -1143,16 +1143,16 @@ if chk2.Checked then
   CloseFile (f);
   DeleteFile('.\temp\_cd3_HARVEST.SCR');
 
-  // патчим
+  // РїР°С‚С‡РёРј
   tmpStr[785] := '516 269 60 15  ANIM "GAMEROOM" "\GRAPHIC\ROOMANIM\GAMEPINB.ABM" "GAMEPINB" "T" "T" "T" "F" "F" "F"';
 
-  // записываем назад изменения
+  // Р·Р°РїРёСЃС‹РІР°РµРј РЅР°Р·Р°Рґ РёР·РјРµРЅРµРЅРёСЏ
   AssignFile (f, '.\rus\cd3\harvest.scr');
   Rewrite (f);
   for i := 0 to (k-1) do
    Writeln (f, tmpstr[i]);
   CloseFile (f);
-  // Конец патча harvest.scr для CD3
+  // РљРѕРЅРµС† РїР°С‚С‡Р° harvest.scr РґР»СЏ CD3
 
 
   form1.Memo1.Lines.Add('done');
@@ -1169,17 +1169,17 @@ var
  s_1, s_2, s_3:string;
  cd : Integer;
 begin
- // Обрабатываем cd 1,2 harvest.scr
+ // РћР±СЂР°Р±Р°С‚С‹РІР°РµРј cd 1,2 harvest.scr
   s_1 := '.\files\cd12\HARVEST.SCR.decrypted';
   s_2 := '.\temp\_cd12_HARVEST.SCR';
-  s_3 := '.\benoid\Объекты_и_описания_оных_(cd1,_cd2).txt';
+  s_3 := '.\benoid\РћР±СЉРµРєС‚С‹_Рё_РѕРїРёСЃР°РЅРёСЏ_РѕРЅС‹С…_(cd1,_cd2).txt';
   cd := 12;
  TranslateSCR (s_1, s_2, s_3, cd);
 
- // Обрабатываем cd3 harvest.scr
+ // РћР±СЂР°Р±Р°С‚С‹РІР°РµРј cd3 harvest.scr
   s_1 := '.\files\cd3\harvest.scr.decrypted';
   s_2 := '.\temp\_cd3_harvest.scr';
-  s_3 := '.\benoid\Объекты_и_описания_оных_(cd3).txt';
+  s_3 := '.\benoid\РћР±СЉРµРєС‚С‹_Рё_РѕРїРёСЃР°РЅРёСЏ_РѕРЅС‹С…_(cd3).txt';
   cd := 3;
  TranslateSCR (s_1, s_2, s_3, cd);
  form1.Memo1.Lines.Add('done');
@@ -1193,22 +1193,22 @@ fin, fout:file of Byte;
 dir, fname2:string;
 logout : TextFile;
 const
-  fsize_offset=$90; // смещение от начала, размер файла - 4 байта в LE
-  data_offset=$94; // смещение начала данных файла
-  path_start = 6;  // смещение начала пути
+  fsize_offset=$90; // СЃРјРµС‰РµРЅРёРµ РѕС‚ РЅР°С‡Р°Р»Р°, СЂР°Р·РјРµСЂ С„Р°Р№Р»Р° - 4 Р±Р°Р№С‚Р° РІ LE
+  data_offset=$94; // СЃРјРµС‰РµРЅРёРµ РЅР°С‡Р°Р»Р° РґР°РЅРЅС‹С… С„Р°Р№Р»Р°
+  path_start = 6;  // СЃРјРµС‰РµРЅРёРµ РЅР°С‡Р°Р»Р° РїСѓС‚Рё
 begin
 //ForceDirectories('.\GRAPHIC\ROOMANIM\');
-FileMode := fmShareDenyNone; // права доступа отключить ругань
+FileMode := fmShareDenyNone; // РїСЂР°РІР° РґРѕСЃС‚СѓРїР° РѕС‚РєР»СЋС‡РёС‚СЊ СЂСѓРіР°РЅСЊ
 AssignFile(fin, fname);
 Reset(fin);
 GlobalFileSize := FileSize(fin);
-GetMem(Buf, GlobalFileSize); // выделяем память буферу
-Blockread(fin, Buf[0], GlobalFileSize);  // читаем весь файл туда
+GetMem(Buf, GlobalFileSize); // РІС‹РґРµР»СЏРµРј РїР°РјСЏС‚СЊ Р±СѓС„РµСЂСѓ
+Blockread(fin, Buf[0], GlobalFileSize);  // С‡РёС‚Р°РµРј РІРµСЃСЊ С„Р°Р№Р» С‚СѓРґР°
 CloseFile (fin);
 
 AssignFile (logout, fname + '.log');
 Rewrite (logout);
-// Разбираем на файлы, создаем каталоги
+// Р Р°Р·Р±РёСЂР°РµРј РЅР° С„Р°Р№Р»С‹, СЃРѕР·РґР°РµРј РєР°С‚Р°Р»РѕРіРё
 pos1:=0;
 
 repeat
@@ -1217,7 +1217,7 @@ i:=0;
 // XFLE = 88 70 76 69
 if ( (buf[pos1 + 0] = 88) and (buf[pos1+1]=70) and (buf[pos1+2]=76) and (buf[pos1+3]=69) ) then
  begin
-  // посчитали размер файла
+  // РїРѕСЃС‡РёС‚Р°Р»Рё СЂР°Р·РјРµСЂ С„Р°Р№Р»Р°
   fsize := getDWORD(pos1 + fsize_offset, buf);
 
   while (buf[pos1 + path_start + i] <> 0) do
@@ -1239,7 +1239,7 @@ if ( (buf[pos1 + 0] = 88) and (buf[pos1+1]=70) and (buf[pos1+2]=76) and (buf[pos
  pos1:=pos1 + fsize + data_offset;
 until (pos1>GlobalFileSize);
 
-FreeMem(Buf); // освободить, закрыть и уйти.
+FreeMem(Buf); // РѕСЃРІРѕР±РѕРґРёС‚СЊ, Р·Р°РєСЂС‹С‚СЊ Рё СѓР№С‚Рё.
 CloseFile (logout);
 
 form1.memo1.lines.add ('done');
@@ -1275,11 +1275,11 @@ if ( (bSize1=0) or (x*y>bSize1) ) then
     Exit;
   end;
 
-GetMem(buf_raw, bSize1); // выделяем память буфферу
+GetMem(buf_raw, bSize1); // РІС‹РґРµР»СЏРµРј РїР°РјСЏС‚СЊ Р±СѓС„С„РµСЂСѓ
 GetMem(buf_pal, bSize2);
 
 Blockread(F, buf_pal[0], bsize2);
-Blockread(F2, buf_raw[0], bsize1);  // читаем весь файл туда
+Blockread(F2, buf_raw[0], bsize1);  // С‡РёС‚Р°РµРј РІРµСЃСЊ С„Р°Р№Р» С‚СѓРґР°
 
 Bitmap := TBitmap.Create;
 Bitmap.PixelFormat := pf8bit;
@@ -1287,7 +1287,7 @@ Bitmap.PixelFormat := pf8bit;
 Bitmap.Width := x;
 Bitmap.Height := y;
 
-// Блок добавки яркости
+// Р‘Р»РѕРє РґРѕР±Р°РІРєРё СЏСЂРєРѕСЃС‚Рё
 pal := nil;
 GetMem(pal, sizeof(TLogPalette) + sizeof(TPaletteEntry) * 255);
 pal.palVersion := $300;
@@ -1315,12 +1315,12 @@ k:=offset;
       Bitmap.Canvas.Pixels[j, i] := RGB(r, g, b);
       Inc(k);
     end;
-// конец блока добавки яркости
+// РєРѕРЅРµС† Р±Р»РѕРєР° РґРѕР±Р°РІРєРё СЏСЂРєРѕСЃС‚Рё
 Bitmap.SaveToFile(picfname+'.bmp');
 Bitmap.Free;
 CloseFile (f);
 CloseFile (f2);
-FreeMem(buf_pal); // освободить, закрыть и уйти.
+FreeMem(buf_pal); // РѕСЃРІРѕР±РѕРґРёС‚СЊ, Р·Р°РєСЂС‹С‚СЊ Рё СѓР№С‚Рё.
 FreeMem(buf_raw);
 FreeMem(pal);
 end;
@@ -1344,11 +1344,11 @@ UnpackDat('.\cd3\harvest.dat');
    begin
      repeat
        fname1:=copy(ExtractFileName(searchResult.Name),0,pos('.',searchResult.Name)-1);
-       //ShowMessage('Имя файла = '+fname1);
+       //ShowMessage('РРјСЏ С„Р°Р№Р»Р° = '+fname1);
        CreateBMP(640, 480, '.\GRAPHIC\ROOMS\'+fname1+'.BM', '.\GRAPHIC\PAL\'+fname1+'.PAL', 12);
      until FindNext(searchResult) <> 0;
 
-    // Должен освободить ресурсы, используемые этими успешными, поисками
+    // Р”РѕР»Р¶РµРЅ РѕСЃРІРѕР±РѕРґРёС‚СЊ СЂРµСЃСѓСЂСЃС‹, РёСЃРїРѕР»СЊР·СѓРµРјС‹Рµ СЌС‚РёРјРё СѓСЃРїРµС€РЅС‹РјРё, РїРѕРёСЃРєР°РјРё
      FindClose(searchResult);
    end;
 }
@@ -1361,11 +1361,11 @@ UnpackDat('.\cd3\harvest.dat');
      repeat
        fname1:=copy(ExtractFileName(searchResult.Name),0,pos('.',searchResult.Name)-1);
 
-        FileMode := fmShareDenyNone; // права доступа отключить ругань
+        FileMode := fmShareDenyNone; // РїСЂР°РІР° РґРѕСЃС‚СѓРїР° РѕС‚РєР»СЋС‡РёС‚СЊ СЂСѓРіР°РЅСЊ
         AssignFile(fin, Path + searchResult.name);
         Reset(fin);
-        GetMem(buf, FileSize(fin)); // выделяем память буфферу
-        Blockread(fin, buf[0], FileSize(fin));  // читаем весь файл туда
+        GetMem(buf, FileSize(fin)); // РІС‹РґРµР»СЏРµРј РїР°РјСЏС‚СЊ Р±СѓС„С„РµСЂСѓ
+        Blockread(fin, buf[0], FileSize(fin));  // С‡РёС‚Р°РµРј РІРµСЃСЊ С„Р°Р№Р» С‚СѓРґР°
 
        x:=getDWORD(0, buf);
        y:=getDWORD(4, buf);
@@ -1373,11 +1373,11 @@ UnpackDat('.\cd3\harvest.dat');
        CreateBMP(x, y, path + fname1 + '.BM', '.\GRAPHIC\PAL\CD1.PAL', 12);
 
        CloseFile (fin);
-       FreeMem(buf); // освободить, закрыть и уйти.
+       FreeMem(buf); // РѕСЃРІРѕР±РѕРґРёС‚СЊ, Р·Р°РєСЂС‹С‚СЊ Рё СѓР№С‚Рё.
 
      until FindNext(searchResult) <> 0;
 
-    // Должен освободить ресурсы, используемые этими успешными, поисками
+    // Р”РѕР»Р¶РµРЅ РѕСЃРІРѕР±РѕРґРёС‚СЊ СЂРµСЃСѓСЂСЃС‹, РёСЃРїРѕР»СЊР·СѓРµРјС‹Рµ СЌС‚РёРјРё СѓСЃРїРµС€РЅС‹РјРё, РїРѕРёСЃРєР°РјРё
      FindClose(searchResult);
    end;
     }
@@ -1386,7 +1386,7 @@ UnpackDat('.\cd3\harvest.dat');
 Form1.Memo1.Lines.Add('done');
 end;
 
-// этот блок целиком написан в Крыму 2013, под море, теплое солнце и
+// СЌС‚РѕС‚ Р±Р»РѕРє С†РµР»РёРєРѕРј РЅР°РїРёСЃР°РЅ РІ РљСЂС‹РјСѓ 2013, РїРѕРґ РјРѕСЂРµ, С‚РµРїР»РѕРµ СЃРѕР»РЅС†Рµ Рё
 // 
 procedure TForm1.bmpFontImportClick(Sender: TObject);
 var
@@ -1394,91 +1394,91 @@ bmpFont   : PByteArray;
 GlobalFileSize, i, j, symIndx, k:longint;
 fin:file of Byte;
 bmpH, bmpW, bmpData, col1, col2, lastPos, symoffsetinbmp, sym, cp1251pos : Integer;
-// массив ширин шрифта из bmp
+// РјР°СЃСЃРёРІ С€РёСЂРёРЅ С€СЂРёС„С‚Р° РёР· bmp
 bmpFont_width : array [0..65] of Integer;
 fname : string;
 const
-  bmpHoffset=$16; // смещение в BMP от нуля, высота BMP
-  bmpWoffset=$12; // смещение в BMP от нуля, ширина BMP
-  bmpDataOffset=$0A; // указатель начала raw данных в bmp
+  bmpHoffset=$16; // СЃРјРµС‰РµРЅРёРµ РІ BMP РѕС‚ РЅСѓР»СЏ, РІС‹СЃРѕС‚Р° BMP
+  bmpWoffset=$12; // СЃРјРµС‰РµРЅРёРµ РІ BMP РѕС‚ РЅСѓР»СЏ, С€РёСЂРёРЅР° BMP
+  bmpDataOffset=$0A; // СѓРєР°Р·Р°С‚РµР»СЊ РЅР°С‡Р°Р»Р° raw РґР°РЅРЅС‹С… РІ bmp
 begin
 {
-font_start[symnum] - таблица смещений до начала буквы, в линейном виде
-font_width[symnum] - таблица ширин
-font_array[i,j] - текущий символ 2х мерная таблица, высота font_h, ширина abcLen, при сохранении разворачивается в buf
+font_start[symnum] - С‚Р°Р±Р»РёС†Р° СЃРјРµС‰РµРЅРёР№ РґРѕ РЅР°С‡Р°Р»Р° Р±СѓРєРІС‹, РІ Р»РёРЅРµР№РЅРѕРј РІРёРґРµ
+font_width[symnum] - С‚Р°Р±Р»РёС†Р° С€РёСЂРёРЅ
+font_array[i,j] - С‚РµРєСѓС‰РёР№ СЃРёРјРІРѕР» 2С… РјРµСЂРЅР°СЏ С‚Р°Р±Р»РёС†Р°, РІС‹СЃРѕС‚Р° font_h, С€РёСЂРёРЅР° abcLen, РїСЂРё СЃРѕС…СЂР°РЅРµРЅРёРё СЂР°Р·РІРѕСЂР°С‡РёРІР°РµС‚СЃСЏ РІ buf
 }
  fname:='.\finalfonts\flip' + IntToStr(FontChoose.Position + 1) +'.bmp';
 
- FileMode := fmShareDenyNone; // права доступа отключить ругань
+ FileMode := fmShareDenyNone; // РїСЂР°РІР° РґРѕСЃС‚СѓРїР° РѕС‚РєР»СЋС‡РёС‚СЊ СЂСѓРіР°РЅСЊ
  AssignFile(fin, fname);
  Reset(fin);
  GlobalFileSize := FileSize(fin);
- GetMem(bmpFont, GlobalFileSize); // выделяем память буфферу
- Blockread(fin, bmpFont[0], GlobalFileSize);  // читаем весь файл туда
+ GetMem(bmpFont, GlobalFileSize); // РІС‹РґРµР»СЏРµРј РїР°РјСЏС‚СЊ Р±СѓС„С„РµСЂСѓ
+ Blockread(fin, bmpFont[0], GlobalFileSize);  // С‡РёС‚Р°РµРј РІРµСЃСЊ С„Р°Р№Р» С‚СѓРґР°
 
  bmpH:=getDWORD(bmpHoffset, bmpFont);
  bmpW:=getDWORD(bmpWoffset, bmpFont);
- bmpData:=getDWORD(bmpDataOffset, bmpFont); // =0436h = 1078 начало raw даных
+ bmpData:=getDWORD(bmpDataOffset, bmpFont); // =0436h = 1078 РЅР°С‡Р°Р»Рѕ raw РґР°РЅС‹С…
 
  //Form1.Memo1.Lines.Add(IntToStr(bmpH)+' '+inttostr(bmpW));
  if (bmpH > font_h) then
   begin
-   Form1.Memo1.Lines.Add('Несовпадение высот BMP и CFT');
+   Form1.Memo1.Lines.Add('РќРµСЃРѕРІРїР°РґРµРЅРёРµ РІС‹СЃРѕС‚ BMP Рё CFT');
    Exit;
   end;
- // заполняем массив ширин из BMP файла
- symIndx:=0; // индекс символа, в BMP идет А-Яа-я
+ // Р·Р°РїРѕР»РЅСЏРµРј РјР°СЃСЃРёРІ С€РёСЂРёРЅ РёР· BMP С„Р°Р№Р»Р°
+ symIndx:=0; // РёРЅРґРµРєСЃ СЃРёРјРІРѕР»Р°, РІ BMP РёРґРµС‚ Рђ-РЇР°-СЏ
  lastPos:=0;
 
- // ищем границы букв и заполняю таблицу ширин символов из BMP
+ // РёС‰РµРј РіСЂР°РЅРёС†С‹ Р±СѓРєРІ Рё Р·Р°РїРѕР»РЅСЏСЋ С‚Р°Р±Р»РёС†Сѓ С€РёСЂРёРЅ СЃРёРјРІРѕР»РѕРІ РёР· BMP
  for j:=0 to (bmpW - 2) do
    begin
-    col1:=bmpFont[bmpData + 0*bmpW + j]; // первого ряда мне оказалось достаточно
+    col1:=bmpFont[bmpData + 0*bmpW + j]; // РїРµСЂРІРѕРіРѕ СЂСЏРґР° РјРЅРµ РѕРєР°Р·Р°Р»РѕСЃСЊ РґРѕСЃС‚Р°С‚РѕС‡РЅРѕ
     col2:=bmpFont[bmpData + 0*bmpW + j + 1];
-    // зеленый фон = 170 , $AA
-    // синий фон символа = 83 , $53
+    // Р·РµР»РµРЅС‹Р№ С„РѕРЅ = 170 , $AA
+    // СЃРёРЅРёР№ С„РѕРЅ СЃРёРјРІРѕР»Р° = 83 , $53
     if (  ((col1=$AA) and (col2=$53)) or ((col1=$53) and (col2=$AA)) ) then
      begin
-      bmpFont_width[symIndx]:=j - lastPos + 1; // записываем ширину
-      lastPos:=j + 1;                          // смещаем последний указатель
+      bmpFont_width[symIndx]:=j - lastPos + 1; // Р·Р°РїРёСЃС‹РІР°РµРј С€РёСЂРёРЅСѓ
+      lastPos:=j + 1;                          // СЃРјРµС‰Р°РµРј РїРѕСЃР»РµРґРЅРёР№ СѓРєР°Р·Р°С‚РµР»СЊ
       inc (symIndx);
      end;
    end;
- // заполняю ширину последней буквы я маленькой
+ // Р·Р°РїРѕР»РЅСЏСЋ С€РёСЂРёРЅСѓ РїРѕСЃР»РµРґРЅРµР№ Р±СѓРєРІС‹ СЏ РјР°Р»РµРЅСЊРєРѕР№
  bmpFont_width[65]:=bmpW - lastPos;
 
- // еще надо проконтролировать большой шрифт, там маленьких букв нет
+ // РµС‰Рµ РЅР°РґРѕ РїСЂРѕРєРѕРЅС‚СЂРѕР»РёСЂРѕРІР°С‚СЊ Р±РѕР»СЊС€РѕР№ С€СЂРёС„С‚, С‚Р°Рј РјР°Р»РµРЅСЊРєРёС… Р±СѓРєРІ РЅРµС‚
  if form1.FontChoose.Position>=4 then bmpFont_width[32]:=bmpW - lastPos;
- // закончили заполнять ширину шрифтов из BMP
+ // Р·Р°РєРѕРЅС‡РёР»Рё Р·Р°РїРѕР»РЅСЏС‚СЊ С€РёСЂРёРЅСѓ С€СЂРёС„С‚РѕРІ РёР· BMP
 
- // сравниваем ширины текущего символа и из BMP
- // затем высчитываем смещение в raw bmp тек символа и заполняем массив новой буквой
- // диапазоны font_width[form1.fontnum.Position] 32-255 и bmpFont_width[65] 0-65
- //Form1.Memo1.Lines.Add(IntToStr(font_width[form1.fontnum.Position]));  // ширина, 7 для Ё
- //Form1.Memo1.Lines.Add(IntToStr(form1.fontnum.Position+1));            // позиция в вин, 167+1
+ // СЃСЂР°РІРЅРёРІР°РµРј С€РёСЂРёРЅС‹ С‚РµРєСѓС‰РµРіРѕ СЃРёРјРІРѕР»Р° Рё РёР· BMP
+ // Р·Р°С‚РµРј РІС‹СЃС‡РёС‚С‹РІР°РµРј СЃРјРµС‰РµРЅРёРµ РІ raw bmp С‚РµРє СЃРёРјРІРѕР»Р° Рё Р·Р°РїРѕР»РЅСЏРµРј РјР°СЃСЃРёРІ РЅРѕРІРѕР№ Р±СѓРєРІРѕР№
+ // РґРёР°РїР°Р·РѕРЅС‹ font_width[form1.fontnum.Position] 32-255 Рё bmpFont_width[65] 0-65
+ //Form1.Memo1.Lines.Add(IntToStr(font_width[form1.fontnum.Position]));  // С€РёСЂРёРЅР°, 7 РґР»СЏ РЃ
+ //Form1.Memo1.Lines.Add(IntToStr(form1.fontnum.Position+1));            // РїРѕР·РёС†РёСЏ РІ РІРёРЅ, 167+1
  //Form1.Memo1.Lines.Add(IntToStr(bmpFont_width[7-1]));
- // form1.fontnum.Position + 1 = 168 - это Ё, 7 буква в алфавите BMP
- // form1.fontnum.Position+1 = 184 - это ё, 33+7 в алфавите BMP
- // 192 - А (1 буква)
- // 223 - Я (33 буква)
- // 224 - а (33 + 1 буква)
- // 255 - я (33 + 33 буква)
+ // form1.fontnum.Position + 1 = 168 - СЌС‚Рѕ РЃ, 7 Р±СѓРєРІР° РІ Р°Р»С„Р°РІРёС‚Рµ BMP
+ // form1.fontnum.Position+1 = 184 - СЌС‚Рѕ С‘, 33+7 РІ Р°Р»С„Р°РІРёС‚Рµ BMP
+ // 192 - Рђ (1 Р±СѓРєРІР°)
+ // 223 - РЇ (33 Р±СѓРєРІР°)
+ // 224 - Р° (33 + 1 Р±СѓРєРІР°)
+ // 255 - СЏ (33 + 33 Р±СѓРєРІР°)
 
  //
  sym:=0;
  cp1251pos:=form1.fontnum.Position + 1;
 
- if (cp1251pos = 168 ) then sym:=7; // 7 буква Ё
- if (cp1251pos = 184 ) then sym:=33 + 7; // 33 + 7 буква ё
+ if (cp1251pos = 168 ) then sym:=7; // 7 Р±СѓРєРІР° РЃ
+ if (cp1251pos = 184 ) then sym:=33 + 7; // 33 + 7 Р±СѓРєРІР° С‘
  if ( (cp1251pos>=192) and (cp1251pos<=197) ) then sym:=cp1251pos - 191;
  if ( (cp1251pos>=198) and (cp1251pos<=223) ) then sym:=cp1251pos + 1 - 191;
 
  if ( (cp1251pos>=224) and (cp1251pos<=229) ) then sym:=cp1251pos - 190;
  if ( (cp1251pos>=230) and (cp1251pos<=255) ) then sym:=cp1251pos + 1 - 190;
 
- if sym=0 then Exit; // не выбрана русская буква
+ if sym=0 then Exit; // РЅРµ РІС‹Р±СЂР°РЅР° СЂСѓСЃСЃРєР°СЏ Р±СѓРєРІР°
 
-// проверка ширин и корректировка
+// РїСЂРѕРІРµСЂРєР° С€РёСЂРёРЅ Рё РєРѕСЂСЂРµРєС‚РёСЂРѕРІРєР°
   while ( (font_width[form1.fontnum.Position] <> bmpFont_width[sym - 1]) ) do
    begin
     Form1.seSymWidth.Value:=bmpFont_width[sym - 1];
@@ -1487,44 +1487,44 @@ font_array[i,j] - текущий символ 2х мерная таблица, высота font_h, ширина abcLen
 
   if ( (font_width[form1.fontnum.Position] = bmpFont_width[sym - 1]) ) then
    begin
-    Form1.Memo1.Lines.Add('Ширина из CFT и BMP файла совпадают.');
+    Form1.Memo1.Lines.Add('РЁРёСЂРёРЅР° РёР· CFT Рё BMP С„Р°Р№Р»Р° СЃРѕРІРїР°РґР°СЋС‚.');
 
-    symoffsetinbmp:=0; // ищем смещение начала изображения
-    for i:=0 to (sym-2) do // -1 потому что с нуля, еще -1 потому что ДО буквы, а не после
-     inc (symoffsetinbmp, bmpfont_width[i]); // нашли смещение-начало буквы, сумма ширин букв идущих до
+    symoffsetinbmp:=0; // РёС‰РµРј СЃРјРµС‰РµРЅРёРµ РЅР°С‡Р°Р»Р° РёР·РѕР±СЂР°Р¶РµРЅРёСЏ
+    for i:=0 to (sym-2) do // -1 РїРѕС‚РѕРјСѓ С‡С‚Рѕ СЃ РЅСѓР»СЏ, РµС‰Рµ -1 РїРѕС‚РѕРјСѓ С‡С‚Рѕ Р”Рћ Р±СѓРєРІС‹, Р° РЅРµ РїРѕСЃР»Рµ
+     inc (symoffsetinbmp, bmpfont_width[i]); // РЅР°С€Р»Рё СЃРјРµС‰РµРЅРёРµ-РЅР°С‡Р°Р»Рѕ Р±СѓРєРІС‹, СЃСѓРјРјР° С€РёСЂРёРЅ Р±СѓРєРІ РёРґСѓС‰РёС… РґРѕ
 
    k := 1;
-   if form1.FontChoose.Position>=2 then k:=1; //почему то у 2х таблиц смещена ширина
+   if form1.FontChoose.Position>=2 then k:=1; //РїРѕС‡РµРјСѓ С‚Рѕ Сѓ 2С… С‚Р°Р±Р»РёС† СЃРјРµС‰РµРЅР° С€РёСЂРёРЅР°
    if form1.FontChoose.Position>=4 then k:=4;
 
-   // заполняем букву из бмп в font_array
-   for i:=0 to (bmpH - 1) do  // координата Y ноль сверху слева
-    for j:=0 to (bmpFont_width[sym-1] -1 ) do // координата X
-     begin         //начало изображения + смещение до буквы + ряд Y + текущий X
+   // Р·Р°РїРѕР»РЅСЏРµРј Р±СѓРєРІСѓ РёР· Р±РјРї РІ font_array
+   for i:=0 to (bmpH - 1) do  // РєРѕРѕСЂРґРёРЅР°С‚Р° Y РЅРѕР»СЊ СЃРІРµСЂС…Сѓ СЃР»РµРІР°
+    for j:=0 to (bmpFont_width[sym-1] -1 ) do // РєРѕРѕСЂРґРёРЅР°С‚Р° X
+     begin         //РЅР°С‡Р°Р»Рѕ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ + СЃРјРµС‰РµРЅРёРµ РґРѕ Р±СѓРєРІС‹ + СЂСЏРґ Y + С‚РµРєСѓС‰РёР№ X
        col1:=bmpFont[bmpData + symoffsetinbmp + i*(bmpW + k) + j ];
 
-       if ( (col1=$53) or (col1=$AA) ) then col1:=0;  // пропускаем зеленый и синий фон из бмп
+       if ( (col1=$53) or (col1=$AA) ) then col1:=0;  // РїСЂРѕРїСѓСЃРєР°РµРј Р·РµР»РµРЅС‹Р№ Рё СЃРёРЅРёР№ С„РѕРЅ РёР· Р±РјРї
        font_array[i, j + font_start[form1.fontnum.Position]]:=col1;
      end;
-   // сохраняем
+   // СЃРѕС…СЂР°РЅСЏРµРј
    SaveFontClick(sender);
-   // обновляем картинку
+   // РѕР±РЅРѕРІР»СЏРµРј РєР°СЂС‚РёРЅРєСѓ
    ShowSymbol;
    end;
 
  CloseFile (fin);
- FreeMem(bmpFont); // освободить, закрыть и уйти.
+ FreeMem(bmpFont); // РѕСЃРІРѕР±РѕРґРёС‚СЊ, Р·Р°РєСЂС‹С‚СЊ Рё СѓР№С‚Рё.
 end;
 
 procedure TForm1.btn1Click(Sender: TObject);
 var i, j, k : Integer;
 begin
-//font_width: array [0..255] of Integer; // ширины символов
-//font_start: array [0..255] of longint;// таблица смещений начала символа
-//font_array: array [0..500, 0..10000] of Byte; // прямоугольник шрифта
-// опускаем вниз каждую букву, прямоугольник, ширина font_width
+//font_width: array [0..255] of Integer; // С€РёСЂРёРЅС‹ СЃРёРјРІРѕР»РѕРІ
+//font_start: array [0..255] of longint;// С‚Р°Р±Р»РёС†Р° СЃРјРµС‰РµРЅРёР№ РЅР°С‡Р°Р»Р° СЃРёРјРІРѕР»Р°
+//font_array: array [0..500, 0..10000] of Byte; // РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРє С€СЂРёС„С‚Р°
+// РѕРїСѓСЃРєР°РµРј РІРЅРёР· РєР°Р¶РґСѓСЋ Р±СѓРєРІСѓ, РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРє, С€РёСЂРёРЅР° font_width
 
-// высота шрифта, ширина шрифта, стартовый адрес
+// РІС‹СЃРѕС‚Р° С€СЂРёС„С‚Р°, С€РёСЂРёРЅР° С€СЂРёС„С‚Р°, СЃС‚Р°СЂС‚РѕРІС‹Р№ Р°РґСЂРµСЃ
 // font_h := buf[dataStart - 8] - 1;
 // font_w := font_width[curpos];
 // start := font_start[curpos];
@@ -1561,7 +1561,7 @@ XFLE_BMPw_OFFSET = $94;
 XFLE_BMPh_OFFSET = $98;
 
 begin
-FileMode := fmShareDenyNone; // права доступа отключить ругань
+FileMode := fmShareDenyNone; // РїСЂР°РІР° РґРѕСЃС‚СѓРїР° РѕС‚РєР»СЋС‡РёС‚СЊ СЂСѓРіР°РЅСЊ
 
 f := TFileStream.Create(fname, fmOpenRead);
 f.position := 0;
@@ -1569,16 +1569,16 @@ setlength(s, f.size);
 f.readBuffer(s[1], f.size);
 f.free;
 
-// читаем весь DAT файл в память
+// С‡РёС‚Р°РµРј РІРµСЃСЊ DAT С„Р°Р№Р» РІ РїР°РјСЏС‚СЊ
 AssignFile(fin, fname);
 Reset(fin);
 DatFileSize := FileSize(fin);
-GetMem(Datsbuf, DatFileSize); // выделяем память буферу
-Blockread(fin, Datsbuf[0], DatFileSize);  // читаем весь файл harvest.dat туда
+GetMem(Datsbuf, DatFileSize); // РІС‹РґРµР»СЏРµРј РїР°РјСЏС‚СЊ Р±СѓС„РµСЂСѓ
+Blockread(fin, Datsbuf[0], DatFileSize);  // С‡РёС‚Р°РµРј РІРµСЃСЊ С„Р°Р№Р» harvest.dat С‚СѓРґР°
 CloseFile (fin);
-// прочитали весь DAT файл в память
+// РїСЂРѕС‡РёС‚Р°Р»Рё РІРµСЃСЊ DAT С„Р°Р№Р» РІ РїР°РјСЏС‚СЊ
 
-// Теперь заполняем список файлов.BM для замены
+// РўРµРїРµСЂСЊ Р·Р°РїРѕР»РЅСЏРµРј СЃРїРёСЃРѕРє С„Р°Р№Р»РѕРІ.BM РґР»СЏ Р·Р°РјРµРЅС‹
 AssignFile (pics2replace, '.\rus\rooms\pics2replace.txt');
 Reset (pics2replace);
 
@@ -1591,8 +1591,8 @@ while (not(Eof(pics2replace))) do
  end;
 CloseFile (pics2replace);
 
-// Заполнили список имен файлов
-for i:= 0 to (totalpics - 1) do // все имена
+// Р—Р°РїРѕР»РЅРёР»Рё СЃРїРёСЃРѕРє РёРјРµРЅ С„Р°Р№Р»РѕРІ
+for i:= 0 to (totalpics - 1) do // РІСЃРµ РёРјРµРЅР°
  begin
   fname2 := Files[i];
   if fname2 = '\ROOMOBJ\BRNTFLYR.RAW' then fname2 := '\ROOMOBJ\BRNTFLYR.BM';
@@ -1622,24 +1622,24 @@ for i:= 0 to (totalpics - 1) do // все имена
     Reset(fin);
 
     bmpFileSize := FileSize(fin);
-    GetMem(bmpin, bmpFileSize); // выделяем память буферу
-    Blockread(fin, bmpin[0], bmpFileSize);  // читаем весь файл harvest.dat туда
+    GetMem(bmpin, bmpFileSize); // РІС‹РґРµР»СЏРµРј РїР°РјСЏС‚СЊ Р±СѓС„РµСЂСѓ
+    Blockread(fin, bmpin[0], bmpFileSize);  // С‡РёС‚Р°РµРј РІРµСЃСЊ С„Р°Р№Р» harvest.dat С‚СѓРґР°
     CloseFile (fin);
 
-    // Отодвигаем указатель назад до двоеточия (':' = $3A) после XFLE
+    // РћС‚РѕРґРІРёРіР°РµРј СѓРєР°Р·Р°С‚РµР»СЊ РЅР°Р·Р°Рґ РґРѕ РґРІРѕРµС‚РѕС‡РёСЏ (':' = $3A) РїРѕСЃР»Рµ XFLE
     while (datsbuf[pos1] <> $3A) do
      Dec (pos1);
 
-    // Делаем еще -5 = XFLE
+    // Р”РµР»Р°РµРј РµС‰Рµ -5 = XFLE
     Dec (pos1, 5);
 
     BMPw := getDWORD(pos1 + XFLE_BMPw_OFFSET, Datsbuf);
     BMPh := getDWORD(pos1 + XFLE_BMPh_OFFSET, Datsbuf);
 
-    // передвигаем указатель на начало данных
+    // РїРµСЂРµРґРІРёРіР°РµРј СѓРєР°Р·Р°С‚РµР»СЊ РЅР° РЅР°С‡Р°Р»Рѕ РґР°РЅРЅС‹С…
     //inc (pos1, $A0);
 
-    // берем указатель данных BMP
+    // Р±РµСЂРµРј СѓРєР°Р·Р°С‚РµР»СЊ РґР°РЅРЅС‹С… BMP
     bmpPos := getDWORD($0A, bmpin);
     if fname2 = '\ROOMOBJ\BRNTFLYR.BM' then bmpPos := 0;
     if fname2 = '\INVENTRY\BRNTFLYR.BM' then bmpPos := 0;
@@ -1688,21 +1688,21 @@ files : array of string;
   eigthZero : boolean;
  cByte : Byte;
 begin
- // Читаем оригинальный файл .ABM с анимацией
- // в буфер abmBuf[]
+ // Р§РёС‚Р°РµРј РѕСЂРёРіРёРЅР°Р»СЊРЅС‹Р№ С„Р°Р№Р» .ABM СЃ Р°РЅРёРјР°С†РёРµР№
+ // РІ Р±СѓС„РµСЂ abmBuf[]
  AssignFile(fin, path + '\IN_ABM\' + filename + '.ABM');
  Reset(fin);
  abmFileSize := FileSize(fin);
- GetMem(abmBuf, abmFileSize); // выделяем память буферу
- Blockread(fin, abmBuf[0], abmFileSize);  // читаем весь файл туда
+ GetMem(abmBuf, abmFileSize); // РІС‹РґРµР»СЏРµРј РїР°РјСЏС‚СЊ Р±СѓС„РµСЂСѓ
+ Blockread(fin, abmBuf[0], abmFileSize);  // С‡РёС‚Р°РµРј РІРµСЃСЊ С„Р°Р№Р» С‚СѓРґР°
  CloseFile (fin);
  //--------------------------------------------
 
- // Сохраняем количество кадров во framesTOTAL
+ // РЎРѕС…СЂР°РЅСЏРµРј РєРѕР»РёС‡РµСЃС‚РІРѕ РєР°РґСЂРѕРІ РІРѕ framesTOTAL
  framesTOTAL := getDWORD(0, abmBuf);
  GetMem(RLEbuf, abmFileSize*20);
 
- // первое начало кодированного кадра со смещения 8
+ // РїРµСЂРІРѕРµ РЅР°С‡Р°Р»Рѕ РєРѕРґРёСЂРѕРІР°РЅРЅРѕРіРѕ РєР°РґСЂР° СЃРѕ СЃРјРµС‰РµРЅРёСЏ 8
  idx := 8;
  RLEidx:=8;
 
@@ -1722,16 +1722,16 @@ begin
   //Readln (log, RLEidx);
   frameNUM := i;
 
-  // Читаем очередной BMP/RAW кадр
+  // Р§РёС‚Р°РµРј РѕС‡РµСЂРµРґРЅРѕР№ BMP/RAW РєР°РґСЂ
   FULLpath := path + '\' + filename +'\' + filename + '_' + IntToStr(frameNUM) + EXT;
   AssignFile (fin, FULLpath);
   Reset(fin);
   bmpFileSize := FileSize(fin);
-  GetMem(BMPbuf, bmpFileSize); // выделяем память буферу
-  Blockread(fin, BMPbuf[0], bmpFileSize);  // читаем весь файл туда
+  GetMem(BMPbuf, bmpFileSize); // РІС‹РґРµР»СЏРµРј РїР°РјСЏС‚СЊ Р±СѓС„РµСЂСѓ
+  Blockread(fin, BMPbuf[0], bmpFileSize);  // С‡РёС‚Р°РµРј РІРµСЃСЊ С„Р°Р№Р» С‚СѓРґР°
   CloseFile (fin);
 
-  // берем из BMP файла размеры X, Y
+  // Р±РµСЂРµРј РёР· BMP С„Р°Р№Р»Р° СЂР°Р·РјРµСЂС‹ X, Y
   BMPw := getDWORD ($12, BMPbuf);
   BMPh := getDWORD ($16, BMPbuf);
 
@@ -1802,32 +1802,32 @@ begin
   AssignFile (fin, FULLpath);
   Reset(fin);
   bmpFileSize := FileSize(fin);
-  GetMem(BMPbuf, bmpFileSize); // выделяем память буферу
-  Blockread(fin, BMPbuf[0], bmpFileSize);  // читаем весь файл туда
+  GetMem(BMPbuf, bmpFileSize); // РІС‹РґРµР»СЏРµРј РїР°РјСЏС‚СЊ Р±СѓС„РµСЂСѓ
+  Blockread(fin, BMPbuf[0], bmpFileSize);  // С‡РёС‚Р°РµРј РІРµСЃСЊ С„Р°Р№Р» С‚СѓРґР°
   CloseFile (fin);
   }
 
-  // максимальный буфер среди всех кадров
+  // РјР°РєСЃРёРјР°Р»СЊРЅС‹Р№ Р±СѓС„РµСЂ СЃСЂРµРґРё РІСЃРµС… РєР°РґСЂРѕРІ
   maxRAWsize := BMPw * BMPh;
   if maxRAWsize > maxBuf then maxBuf := maxRAWsize;
   writeDWORD (maxBuf, 4, RLEbuf);
 
-  // начинается ABM файла со смещений кадра
-  // 2 смещения по X Y , каждое по 4 байта, пишем нули
+  // РЅР°С‡РёРЅР°РµС‚СЃСЏ ABM С„Р°Р№Р»Р° СЃРѕ СЃРјРµС‰РµРЅРёР№ РєР°РґСЂР°
+  // 2 СЃРјРµС‰РµРЅРёСЏ РїРѕ X Y , РєР°Р¶РґРѕРµ РїРѕ 4 Р±Р°Р№С‚Р°, РїРёС€РµРј РЅСѓР»Рё
   writeDWORD (0, RLEidx + 0, RLEbuf);
   writeDWORD (0, RLEidx + 4, RLEbuf);
 
-  // пишем разрешение кадра, сперва X, затем Y
+  // РїРёС€РµРј СЂР°Р·СЂРµС€РµРЅРёРµ РєР°РґСЂР°, СЃРїРµСЂРІР° X, Р·Р°С‚РµРј Y
   writeDWORD (BMPw, RLEidx + 8, RLEbuf);
   writeDWORD (BMPh, RLEidx + 12, RLEbuf);
 
-  // packed byte = 1 сжато, 0 = не сжато.
+  // packed byte = 1 СЃР¶Р°С‚Рѕ, 0 = РЅРµ СЃР¶Р°С‚Рѕ.
   RLEbuf [RLEidx + 16] := 1;
 
-  // размер данных, сжатых или нет
+  // СЂР°Р·РјРµСЂ РґР°РЅРЅС‹С…, СЃР¶Р°С‚С‹С… РёР»Рё РЅРµС‚
   writeDWORD (maxRAWsize, RLEidx + 17, RLEbuf);
 
-  if filename = 'POINTERS' then number := 18692; // для pointers.abm
+  if filename = 'POINTERS' then number := 18692; // РґР»СЏ pointers.abm
   if filename = 'WAIT' then number := 49208; // wait.abm
   if filename = 'EDNASIGN' then number := 28728;
   if filename = 'GAMEPINB' then number := 16440;
@@ -1835,7 +1835,7 @@ begin
   offset := RLEidx + 21;
   writeWORD (number, offset, RLEbuf);
 
-  if filename = 'POINTERS' then number := 104; // для pointers.abm
+  if filename = 'POINTERS' then number := 104; // РґР»СЏ pointers.abm
   if filename = 'WAIT' then number := 87; // wait.abm
   if filename = 'EDNASIGN' then number := 49;
   if filename = 'GAMEPINB' then number := 39;
@@ -1843,14 +1843,14 @@ begin
   offset := RLEidx + 23;
   writeWORD (number, offset, RLEbuf);
 
-  // пропускаем заголовок 25 байт
+  // РїСЂРѕРїСѓСЃРєР°РµРј Р·Р°РіРѕР»РѕРІРѕРє 25 Р±Р°Р№С‚
   inc (RLEidx, 25);
   //inc (idx, 25);
 
-  // запоминаем позицию начала кодированных байт
+  // Р·Р°РїРѕРјРёРЅР°РµРј РїРѕР·РёС†РёСЋ РЅР°С‡Р°Р»Р° РєРѕРґРёСЂРѕРІР°РЅРЅС‹С… Р±Р°Р№С‚
   RLEidxstart := RLEidx;
 
-  // Вот тут начинаем сжимать BMP и писать в RLE буфер
+  // Р’РѕС‚ С‚СѓС‚ РЅР°С‡РёРЅР°РµРј СЃР¶РёРјР°С‚СЊ BMP Рё РїРёСЃР°С‚СЊ РІ RLE Р±СѓС„РµСЂ
   if ext = '.RAW' then bmpDataStart := 0;
   if ext = '.BMP' then bmpDataStart := getDWORD($0A, BMPbuf);
 
@@ -1860,7 +1860,7 @@ begin
   //Move(BMPbuf[0], RLEbuf[RLEidxstart], bmpFileSize);
   //inc (RLEidx, bmpFileSize);
 
-  // жмем BMP
+  // Р¶РјРµРј BMP
   NUMmax := 0;
  // if filename<>'POINTERS' then
 
@@ -1868,30 +1868,30 @@ begin
    begin
     cByte := BMPbuf[bmpDataStart];
     NUM := 1;
-    // пакуем одинаковые байты
+    // РїР°РєСѓРµРј РѕРґРёРЅР°РєРѕРІС‹Рµ Р±Р°Р№С‚С‹
     while ( ((bmpDataStart + 1) <= bmpFileSize) and (BMPbuf[bmpDataStart + 1] = cByte) ) do
      begin
-      inc (NUM); // увеличиваем счетчик одинаковых байт
-      inc (bmpDataStart); // и переходим к следующему байту BMP
+      inc (NUM); // СѓРІРµР»РёС‡РёРІР°РµРј СЃС‡РµС‚С‡РёРє РѕРґРёРЅР°РєРѕРІС‹С… Р±Р°Р№С‚
+      inc (bmpDataStart); // Рё РїРµСЂРµС…РѕРґРёРј Рє СЃР»РµРґСѓСЋС‰РµРјСѓ Р±Р°Р№С‚Сѓ BMP
       if NUM >= 127 then
       begin
        if NUM > NUMmax then NUMmax := NUM;
-       Break; // в данной версии RLE их не может быть >127
+       Break; // РІ РґР°РЅРЅРѕР№ РІРµСЂСЃРёРё RLE РёС… РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ >127
        end;
      end;
 
-   // есть повторы >=2
+   // РµСЃС‚СЊ РїРѕРІС‚РѕСЂС‹ >=2
     if NUM >= 2 then
      begin
-      RLEbuf[RLEidx + 0] := NUM + $80; // пишем количество повторов
-      RLEbuf[RLEidx + 1] := cByte;     // и сам байт
-      inc (RLEidx, 2); // смещаем указатель сжатых данных на следующий
-      inc (bmpDataStart); // переходим к следующему байту
+      RLEbuf[RLEidx + 0] := NUM + $80; // РїРёС€РµРј РєРѕР»РёС‡РµСЃС‚РІРѕ РїРѕРІС‚РѕСЂРѕРІ
+      RLEbuf[RLEidx + 1] := cByte;     // Рё СЃР°Рј Р±Р°Р№С‚
+      inc (RLEidx, 2); // СЃРјРµС‰Р°РµРј СѓРєР°Р·Р°С‚РµР»СЊ СЃР¶Р°С‚С‹С… РґР°РЅРЅС‹С… РЅР° СЃР»РµРґСѓСЋС‰РёР№
+      inc (bmpDataStart); // РїРµСЂРµС…РѕРґРёРј Рє СЃР»РµРґСѓСЋС‰РµРјСѓ Р±Р°Р№С‚Сѓ
       if NUM > NUMmax then NUMmax := NUM;
       Continue;
      end;
 
-    // нет повторов, след байт не равен предыдущему
+    // РЅРµС‚ РїРѕРІС‚РѕСЂРѕРІ, СЃР»РµРґ Р±Р°Р№С‚ РЅРµ СЂР°РІРµРЅ РїСЂРµРґС‹РґСѓС‰РµРјСѓ
     NUMidx := RLEidx;
     NUM := 1;
 
@@ -1918,10 +1918,10 @@ begin
    end;
 
 
-  // пишем в заголовок размер кодированных данных
+  // РїРёС€РµРј РІ Р·Р°РіРѕР»РѕРІРѕРє СЂР°Р·РјРµСЂ РєРѕРґРёСЂРѕРІР°РЅРЅС‹С… РґР°РЅРЅС‹С…
   writeDWORD (RLEidx - RLEidxstart, RLEidxstart - 8, RLEbuf);
 
-  // фикс для WAIT. перезаполняю таблицу кадра
+  // С„РёРєСЃ РґР»СЏ WAIT. РїРµСЂРµР·Р°РїРѕР»РЅСЏСЋ С‚Р°Р±Р»РёС†Сѓ РєР°РґСЂР°
   if filename='WAIT' then
    begin
     RLEbuf[RLEidxstart - 9] := 1;
@@ -1929,7 +1929,7 @@ begin
     writeWORD(87, RLEidxstart - 2, RLEbuf);
    end;
 
-  // заполняю таблицу
+  // Р·Р°РїРѕР»РЅСЏСЋ С‚Р°Р±Р»РёС†Сѓ
   if filename='POINTERS' then
    begin
     RLEbuf[RLEidxstart - 9] := 1;
@@ -1968,11 +1968,11 @@ begin
  AssignFile(fin, fname);
  Reset(fin);
  abmFileSize := FileSize(fin);
- GetMem(abmBuf, abmFileSize); // выделяем память буферу
- Blockread(fin, abmBuf[0], abmFileSize);  // читаем весь файл туда
+ GetMem(abmBuf, abmFileSize); // РІС‹РґРµР»СЏРµРј РїР°РјСЏС‚СЊ Р±СѓС„РµСЂСѓ
+ Blockread(fin, abmBuf[0], abmFileSize);  // С‡РёС‚Р°РµРј РІРµСЃСЊ С„Р°Р№Р» С‚СѓРґР°
  CloseFile (fin);
 
- // лог смещений до кадра
+ // Р»РѕРі СЃРјРµС‰РµРЅРёР№ РґРѕ РєР°РґСЂР°
  AssignFile (logout, 'anim_offsets.txt');
  Rewrite (logout);
 
@@ -1983,17 +1983,17 @@ begin
 
  for frameNUM := 1 to framesTOTAL do
  begin
-  // читаем заголовок
-  offX := getDWORD (idx + 0, abmBuf); // смещение кадра по x
-  offY := getDWORD (idx + 4, abmBuf); // смещение кадра по y
+  // С‡РёС‚Р°РµРј Р·Р°РіРѕР»РѕРІРѕРє
+  offX := getDWORD (idx + 0, abmBuf); // СЃРјРµС‰РµРЅРёРµ РєР°РґСЂР° РїРѕ x
+  offY := getDWORD (idx + 4, abmBuf); // СЃРјРµС‰РµРЅРёРµ РєР°РґСЂР° РїРѕ y
 
   BMPw := getDWORD(idx + 8, abmBuf);
   BMPh := getDWORD(idx + 12, abmBuf);
 
-  pkdByte := abmBuf[idx + 16];     // =1 изображение сжато, 0 - нет
+  pkdByte := abmBuf[idx + 16];     // =1 РёР·РѕР±СЂР°Р¶РµРЅРёРµ СЃР¶Р°С‚Рѕ, 0 - РЅРµС‚
   PackedSize := getDWORD(idx + 17, abmBuf); // RLE packed size RAW
-  unk3 := getWORD(idx + 21, abmBuf);  // хуй знат что за числа
-  unk4 := getWORD(idx + 23, abmBuf);  // хуй знат что за числа
+  unk3 := getWORD(idx + 21, abmBuf);  // С…СѓР№ Р·РЅР°С‚ С‡С‚Рѕ Р·Р° С‡РёСЃР»Р°
+  unk4 := getWORD(idx + 23, abmBuf);  // С…СѓР№ Р·РЅР°С‚ С‡С‚Рѕ Р·Р° С‡РёСЃР»Р°
 
   Write (logout, 'offset=' + inttostr(idx) + ', ');
   write (logout, 'x=' + inttostr(BMPw) + ', ');
@@ -2012,16 +2012,16 @@ begin
   GetMem (deRLEbuf, BMPw*BMPh*20);
   deRLEidx := 0;
 
-  // двигаем указатель на данные
+  // РґРІРёРіР°РµРј СѓРєР°Р·Р°С‚РµР»СЊ РЅР° РґР°РЅРЅС‹Рµ
   inc (idx, 25);
 
   while ( deRLEidx < (BMPw * BMPh) ) do
    begin
-    // уникальные байты
+    // СѓРЅРёРєР°Р»СЊРЅС‹Рµ Р±Р°Р№С‚С‹
     if abmBuf[idx] < $80 then
      begin
       cnt := abmBuf[idx];
-      inc (idx); // пропускаем счетчик байт
+      inc (idx); // РїСЂРѕРїСѓСЃРєР°РµРј СЃС‡РµС‚С‡РёРє Р±Р°Р№С‚
 
       for j := 1 to (cnt) do
        begin
@@ -2030,7 +2030,7 @@ begin
        Inc (idx);
        end;
      end;
-    // количество повторов
+    // РєРѕР»РёС‡РµСЃС‚РІРѕ РїРѕРІС‚РѕСЂРѕРІ
     if abmBuf[idx] > $80 then
      begin
       cnt := abmBuf[idx] - $80;
@@ -2079,7 +2079,7 @@ decodeABM('.\FILES\ABM\COPIER.ABM');
        decodeABM(path + fname1 + '.abm');
      until FindNext(searchResult) <> 0;
 
-    // Должен освободить ресурсы, используемые этими успешными, поисками
+    // Р”РѕР»Р¶РµРЅ РѕСЃРІРѕР±РѕРґРёС‚СЊ СЂРµСЃСѓСЂСЃС‹, РёСЃРїРѕР»СЊР·СѓРµРјС‹Рµ СЌС‚РёРјРё СѓСЃРїРµС€РЅС‹РјРё, РїРѕРёСЃРєР°РјРё
      FindClose(searchResult);
    end;
   }
