@@ -1992,8 +1992,8 @@ begin
 
   pkdByte := abmBuf[idx + 16];     // =1 изображение сжато, 0 - нет
   PackedSize := getDWORD(idx + 17, abmBuf); // RLE packed size RAW
-  unk3 := getWORD(idx + 21, abmBuf);  // хуй знат что за числа
-  unk4 := getWORD(idx + 23, abmBuf);  // хуй знат что за числа
+  unk3 := getWORD(idx + 21, abmBuf);  // хз что за числа
+  unk4 := getWORD(idx + 23, abmBuf);  // хз что за числа
 
   Write (logout, 'offset=' + inttostr(idx) + ', ');
   write (logout, 'x=' + inttostr(BMPw) + ', ');
